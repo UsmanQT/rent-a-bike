@@ -8,12 +8,22 @@ import Login from './screens/Login';
 import CreateAccount from './screens/CreateAccount';
 import Profile from './screens/Profile';
 import EditProfile from './screens/EditProfile';
+import HomeScreen from './screens/Home';
+import FilterScreen from './screens/Filter';
+import ViewListing from './screens/ViewListing';
+import CreateListing from './screens/CreateListing';
 
 export default function App() {
   const Stack = createNativeStackNavigator();
   return (
     <NavigationContainer>
       <Stack.Navigator>
+      <Stack.Screen name='HomeScreen' component={HomeScreen}/>
+      <Stack.Screen name='ViewListing' component={ViewListing}/>
+      
+      <Stack.Screen name='FilterScreen' component={FilterScreen}/>
+      <Stack.Screen name='CreateListing' component={CreateListing}/>
+      
         <Stack.Screen name='Profile' component={Profile}/>
         <Stack.Screen
           name="Login"
