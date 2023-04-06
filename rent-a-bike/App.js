@@ -18,20 +18,21 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
+
+      <Stack.Screen
+          name="Login"
+          component={Login}
+          options={{ title: "Login to RentABike" }}
+      />
+      <Stack.Screen name="CreateAccount" component={CreateAccount}/>
       <Stack.Screen name='HomeScreen' component={HomeScreen}/>
       <Stack.Screen name='ViewListing' component={ViewListing}/>
       
       <Stack.Screen name='FilterScreen' component={FilterScreen}/>
       <Stack.Screen name='CreateListing' component={CreateListing}/>
       
-        <Stack.Screen name='Profile' component={Profile}/>
-        <Stack.Screen
-          name="Login"
-          component={Login}
-          options={{ title: "Login to RentABike" }}
-        />
-        <Stack.Screen name="CreateAccount" component={CreateAccount}/>
-        <Stack.Screen name='EditProfile' component={EditProfile}/>
+      <Stack.Screen name='Profile' component={Profile}/>
+      <Stack.Screen name='EditProfile' component={EditProfile}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

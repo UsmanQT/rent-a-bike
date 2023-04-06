@@ -39,6 +39,9 @@ const Login = ({navigation}) => {
                         onPress={() =>{
                             // TODO: Check if correct password
                             // TODO: navigate to home screen
+                            if (true) {
+                                navigation.navigate("HomeScreen")
+                            }
                         }}
                         style={styles.button}
                     />

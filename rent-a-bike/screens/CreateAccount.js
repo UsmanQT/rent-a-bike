@@ -1,15 +1,33 @@
 import { Text, Keyboard, StyleSheet, View, Pressable } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from "react";
 import { Button, Input } from 'react-native-elements';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import uuid from 'react-native-uuid';
+
+import {
+    initDB,
+    setupDataListener,
+    storeData,
+    paths
+} from '../firebase/fb-data'
 
 const CreateAccount = ({navigation}) => {
 
-    const[name, setName] = React.useState('');
-    const[email, setEmail] = React.useState('');
-    const[password, setPassword] = React.useState('');
+    const[user, setUser] = React.useState({
+        name: "",
+        email: "",
+        password: "",
+    })
+
     const[confirm, setConfirm] = React.useState('');
     const[error, setError] = React.useState('');
+
+    const updateStateObject = (vals) => {
+        setUser({
+          ...user,
+          ...vals,
+        });
+      };
 
     const dismissKeyboard = () => {
         if (Platform.OS != "web") {
@@ -21,6 +39,14 @@ const CreateAccount = ({navigation}) => {
         return password === confirm ? '' : 'Passwords do not match'
     }
 
+    useEffect(() => {
+        try {
+          initDB();
+        } catch (err) {
+          console.log(err);
+        }
+      }, []);
+
     return (
         <Pressable onTouchStart={dismissKeyboard} style={{flex: 1}}>
             <View style={styles.container}>
@@ -29,23 +55,30 @@ const CreateAccount = ({navigation}) => {
                     <Input 
                         label='Enter Name'
                         placeholder='Your Name'
-                        onChangeText={setName}
-                        value={name}
+                        onChangeText={(val) => updateStateObject({name: val})}
+                        value={user.name}
                         autoCorrect={false}
+                        autoCapitalize='none'
                     />
                     <Input 
                         label='Enter Email'
                         placeholder='email@address.com'
-                        onChangeText={setEmail}
-                        value={email}
+                        onChangeText={(val) => updateStateObject({email: val})}
+                        value={user.email}
+                        autoCorrect={false}
+                        autoCapitalize='none'
+                        keyboardType='email-address'
+                        autoCompleteType='email'
                     />
                     <Input 
                         label='Create Password'
                         placeholder='Password'
                         secureTextEntry={true}
-                        onChangeText={setPassword}
-                        value={password}
+                        onChangeText={(val) => updateStateObject({password: val})}
+                        value={user.password}
+                        autoCorrect={false}
                         errorStyle={styles.inputError}
+                        autoCapitalize='none'
                         errorMessage={error}
                     />
                     <Input 
@@ -53,14 +86,19 @@ const CreateAccount = ({navigation}) => {
                         placeholder='Password'
                         secureTextEntry={true}
                         onChangeText={setConfirm}
+                        autoCorrect={false}
+                        autoCapitalize='none'
                         value={confirm}
                     />
                     <Button
                         title='Create Account'
                         onPress={() =>{
-                            // TODO: Check if valid password
-                            if(password === confirm && name != '' && email != '') {
+                            if(user.password === confirm && user.name != '' && user.email != '') {
                                 // Generate a UUID and assign it to UserID
+                                let name = user.name;
+                                let email = user.email;
+                                let password = user.password;
+                                storeData({name, email, password, userID: uuid.v4()}, paths.USER_DATA_PATH)
                                 navigation.navigate("Login");
                             }
                             else {
