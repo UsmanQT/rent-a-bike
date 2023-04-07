@@ -1,11 +1,16 @@
 import { Text, Keyboard, StyleSheet, View, Pressable } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Input } from 'react-native-elements';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
+import { firebaseConfig } from "../firebase/fb-credentials";
+import { initializeApp } from "firebase/app";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import {auth} from '../firebase/fb-data';
 
 
-const Login = ({navigation}) => {
+
+const Login = ({route, navigation}) => {
 
     const[email, setEmail] = React.useState('');
     const[password, setPassword] = React.useState('');
@@ -16,6 +21,8 @@ const Login = ({navigation}) => {
         }
     };
 
+    
+
     return (
         <Pressable onTouchStart={dismissKeyboard} style={{flex: 1}}>
                 <View style={styles.container}>
@@ -25,7 +32,9 @@ const Login = ({navigation}) => {
                         label='Your Email Address'
                         placeholder='email@address.com'
                         onChangeText={setEmail}
-                        value={email}
+                        value={email}autoCapitalize='none'
+                        keyboardType='email-address'
+                        autoCompleteType='email'
                     />
                     <Input 
                         label='Password'
@@ -37,11 +46,17 @@ const Login = ({navigation}) => {
                     <Button
                         title='Log In'
                         onPress={() =>{
-                            // TODO: Check if correct password
-                            // TODO: navigate to home screen
-                            if (true) {
-                                navigation.navigate("HomeScreen")
-                            }
+                            signInWithEmailAndPassword(auth, email, password)
+                                .then((userCredential) => {
+                                    const user = userCredential.user;
+                                    navigation.navigate("HomeScreen")
+                                })
+                                .catch((error) => {
+                                    //TODO: Set error message on input
+                                    const errorCode = error.code;
+                                    const errorMessage = error.message;
+                                    console.log(errorCode,errorMessage)
+                                })
                         }}
                         style={styles.button}
                     />
@@ -49,6 +64,8 @@ const Login = ({navigation}) => {
                         <Text style={{fontSize: 16}} >  Dont have an acount? </Text> 
                             <TouchableOpacity 
                                 onPress={() => {
+                                    setPassword("")
+                                    setEmail("")
                                     navigation.navigate("CreateAccount");
                                 }}
                             >

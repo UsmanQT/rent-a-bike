@@ -4,6 +4,9 @@ import { Button, Input } from 'react-native-elements';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import uuid from 'react-native-uuid';
 
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import {auth} from '../firebase/fb-data';
+
 import {
     initDB,
     setupDataListener,
@@ -11,7 +14,8 @@ import {
     paths
 } from '../firebase/fb-data'
 
-const CreateAccount = ({navigation}) => {
+
+const CreateAccount = ({route, navigation}) => {
 
     const[user, setUser] = React.useState({
         name: "",
@@ -98,8 +102,21 @@ const CreateAccount = ({navigation}) => {
                                 let name = user.name;
                                 let email = user.email;
                                 let password = user.password;
-                                storeData({name, email, password, userID: uuid.v4()}, paths.USER_DATA_PATH)
-                                navigation.navigate("Login");
+                                //storeData({name, email, password, userID: uuid.v4()}, paths.USER_DATA_PATH)
+
+                                createUserWithEmailAndPassword(auth, user.email, user.password)
+                                    .then((userCredential) => {
+                                        const user = userCredential.user;
+                                        navigation.navigate("Login");
+                                    })
+                                    .catch((error) => {
+                                        //TODO: Display error message to user with a toast.
+                                        const errorCode = error.code;
+                                        const errorMessage = error.message;
+                                        console.log(errorCode, errorMessage);
+                                    })
+
+                                
                             }
                             else {
                                 setError(validatePassword(password, confirm));

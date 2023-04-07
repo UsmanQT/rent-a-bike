@@ -9,6 +9,13 @@ import {
 
 import { firebaseConfig } from "./fb-credentials";
 import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth"; 
+
+
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export default app;
+
 
 export const paths = {
     USER_DATA_PATH: "UserData/",
@@ -17,6 +24,8 @@ export const paths = {
 export function initDB() {
     initializeApp(firebaseConfig);
 }
+
+
 
 export function storeData(item, path) {
     console.log('Writing', item);

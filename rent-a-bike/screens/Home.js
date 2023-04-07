@@ -9,7 +9,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import listings from '../models/listing'
 
 
-const HomeScreen = ({navigation}) => {
+const HomeScreen = ({route, navigation}) => {
    
     const [listingImages, setListingImages] = React.useState([1,1,1,1,1,1,1,1,1,1]) // random data to populate dummy images
 
