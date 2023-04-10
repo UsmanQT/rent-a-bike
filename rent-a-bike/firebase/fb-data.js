@@ -3,13 +3,12 @@ import {
     onValue,
     push,
     ref,
-    remove,
-    set,
 } from "firebase/database";
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getStorage } from 'firebase/storage';
 
 import { firebaseConfig } from "./fb-credentials";
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth"; 
 
 
 const app = initializeApp(firebaseConfig);

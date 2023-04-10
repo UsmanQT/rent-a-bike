@@ -6,7 +6,8 @@ import CreateListing from "./CreateListing";
 import Profile from "./Profile";
 import FilterScreen from "./Filter";
 import Icon from 'react-native-vector-icons/FontAwesome';
-import listings from '../models/listing'
+import listings from '../models/listing';
+import {auth} from '../firebase/fb-data';
 
 
 const HomeScreen = ({route, navigation}) => {
@@ -47,7 +48,14 @@ const HomeScreen = ({route, navigation}) => {
           ),
           headerLeft: () => (
             <TouchableOpacity
-              onPress={() => navigation.navigate("Profile")}
+              
+              onPress={() => {
+                const user = auth.currentUser;
+                console.log(user.uid);
+                navigation.navigate("Profile", {
+                  uid: user?.uid
+                })}
+              }
             >
              <Text style={styles.button}> Profile </Text>
             </TouchableOpacity>

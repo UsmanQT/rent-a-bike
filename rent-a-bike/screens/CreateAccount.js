@@ -1,10 +1,9 @@
 import { Text, Keyboard, StyleSheet, View, Pressable } from 'react-native';
 import React, { useEffect, useRef, useState } from "react";
 import { Button, Input } from 'react-native-elements';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import uuid from 'react-native-uuid';
+import Toast from "react-native-root-toast";
 
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "firebase/auth";
 import {auth} from '../firebase/fb-data';
 
 import {
@@ -24,7 +23,9 @@ const CreateAccount = ({route, navigation}) => {
     })
 
     const[confirm, setConfirm] = React.useState('');
-    const[error, setError] = React.useState('');
+    const[passwordError, setPasswordError] = React.useState('');
+    const[nameError, setNameError] = React.useState('');
+    const[emailError, setEmailError] = React.useState('');
 
     const updateStateObject = (vals) => {
         setUser({
@@ -40,8 +41,15 @@ const CreateAccount = ({route, navigation}) => {
     };
 
     function validatePassword(password, confirm) {
-        return password === confirm ? '' : 'Passwords do not match'
+        if (password != '') {
+            return password === confirm ? '' : 'Passwords do not match'
+        }
+        else {
+            return 'Enter a password'
+        }
     }
+
+    
 
     useEffect(() => {
         try {
@@ -63,6 +71,8 @@ const CreateAccount = ({route, navigation}) => {
                         value={user.name}
                         autoCorrect={false}
                         autoCapitalize='none'
+                        errorStyle={styles.inputError}
+                        errorMessage={nameError}
                     />
                     <Input 
                         label='Enter Email'
@@ -73,6 +83,8 @@ const CreateAccount = ({route, navigation}) => {
                         autoCapitalize='none'
                         keyboardType='email-address'
                         autoCompleteType='email'
+                        errorStyle={styles.inputError}
+                        errorMessage={emailError}
                     />
                     <Input 
                         label='Create Password'
@@ -81,9 +93,9 @@ const CreateAccount = ({route, navigation}) => {
                         onChangeText={(val) => updateStateObject({password: val})}
                         value={user.password}
                         autoCorrect={false}
-                        errorStyle={styles.inputError}
                         autoCapitalize='none'
-                        errorMessage={error}
+                        errorStyle={styles.inputError}
+                        errorMessage={passwordError}
                     />
                     <Input 
                         label='Confirm Password'
@@ -97,29 +109,52 @@ const CreateAccount = ({route, navigation}) => {
                     <Button
                         title='Create Account'
                         onPress={() =>{
-                            if(user.password === confirm && user.name != '' && user.email != '') {
-                                // Generate a UUID and assign it to UserID
-                                let name = user.name;
-                                let email = user.email;
-                                let password = user.password;
-                                //storeData({name, email, password, userID: uuid.v4()}, paths.USER_DATA_PATH)
+                            setNameError('');
+                            setEmailError('');
+                            setPasswordError('');
 
+                            if (user.password != confirm || user.password === '') {
+                                setPasswordError(validatePassword(user.password, confirm));
+                            }
+                            else if (user.name === '') {
+                                setNameError('Enter a name.')
+                            }
+                            else {
                                 createUserWithEmailAndPassword(auth, user.email, user.password)
-                                    .then((userCredential) => {
-                                        const user = userCredential.user;
+                                    .then(() => {
+
+                                        signInWithEmailAndPassword(auth, user.email, user.password)
+                                            .then(() => {
+                                                console.log(auth.currentUser.uid)
+                                                updateProfile(auth.currentUser, {
+                                                    displayName: user.name, photoURL: 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg',
+                                                })
+                                            })
                                         navigation.navigate("Login");
                                     })
                                     .catch((error) => {
-                                        //TODO: Display error message to user with a toast.
                                         const errorCode = error.code;
                                         const errorMessage = error.message;
-                                        console.log(errorCode, errorMessage);
+
+                                        if (errorCode === 'auth/invalid-email') {
+                                            setEmailError('Enter a valid email address.');
+                                        }
+                                        else if (errorCode === 'auth/missing-email') {
+                                            setEmailError('Enter an email.')
+                                        }
+                                        else if (errorCode === 'auth/weak-password') {
+                                            setPasswordError('Password should be at least 6 characters.')
+                                        }
+                                        else {
+                                            Toast.show(errorMessage, {
+                                                duration: Toast.durations.LONG,
+                                                animation: true,
+                                                hideOnPress: true,
+                                            });
+                                        }
                                     })
 
                                 
-                            }
-                            else {
-                                setError(validatePassword(password, confirm));
                             }
                         }}
                         style={styles.button}
@@ -130,6 +165,7 @@ const CreateAccount = ({route, navigation}) => {
     );
 
 };
+
 
 const styles = StyleSheet.create({
     container: {

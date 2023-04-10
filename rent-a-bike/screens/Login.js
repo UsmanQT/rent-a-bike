@@ -7,6 +7,7 @@ import { firebaseConfig } from "../firebase/fb-credentials";
 import { initializeApp } from "firebase/app";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import {auth} from '../firebase/fb-data';
+import Toast from "react-native-root-toast";
 
 
 
@@ -14,6 +15,8 @@ const Login = ({route, navigation}) => {
 
     const[email, setEmail] = React.useState('');
     const[password, setPassword] = React.useState('');
+    const[passwordError, setPasswordError] = React.useState('');
+    const[emailError, setEmailError] = React.useState('');
 
     const dismissKeyboard = () => {
         if (Platform.OS != "web") {
@@ -35,6 +38,8 @@ const Login = ({route, navigation}) => {
                         value={email}autoCapitalize='none'
                         keyboardType='email-address'
                         autoCompleteType='email'
+                        errorStyle={styles.inputError}
+                        errorMessage={emailError}
                     />
                     <Input 
                         label='Password'
@@ -42,21 +47,49 @@ const Login = ({route, navigation}) => {
                         secureTextEntry={true}
                         onChangeText={setPassword}
                         value={password}
+                        errorStyle={styles.inputError}
+                        errorMessage={passwordError}
                     />
                     <Button
                         title='Log In'
                         onPress={() =>{
-                            signInWithEmailAndPassword(auth, email, password)
-                                .then((userCredential) => {
-                                    const user = userCredential.user;
-                                    navigation.navigate("HomeScreen")
-                                })
-                                .catch((error) => {
-                                    //TODO: Set error message on input
-                                    const errorCode = error.code;
-                                    const errorMessage = error.message;
-                                    console.log(errorCode,errorMessage)
-                                })
+                            setEmailError('');
+                            setPasswordError('');
+
+                            if (password === '') {
+                                setPasswordError('Enter a password.')
+                            }
+                            else {
+                                signInWithEmailAndPassword(auth, email, password)
+                                    .then((userCredential) => {
+                                        const user = userCredential.user;
+                                        navigation.navigate("HomeScreen")
+                                    })
+                                    .catch((error) => {
+                                        //TODO: Set error message on input
+                                        const errorCode = error.code;
+                                        const errorMessage = error.message;
+                                        console.log(errorCode,errorMessage)
+    
+                                        if (errorCode === 'auth/invalid-email') {
+                                            setEmailError('Enter a valid email address.');
+                                        }
+                                        else if (errorCode === 'auth/missing-email') {
+                                            setEmailError('Enter an email.')
+                                        }
+                                        else if (errorCode === 'auth/wrong-password') {
+                                            setPasswordError('Incorrect password.')
+                                        }
+                                        else {
+                                            Toast.show(errorMessage, {
+                                                duration: Toast.durations.LONG,
+                                                animation: true,
+                                                hideOnPress: true,
+                                            });
+                                        }
+                                    }
+                                )
+                            }
                         }}
                         style={styles.button}
                     />

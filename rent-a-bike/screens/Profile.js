@@ -1,18 +1,33 @@
 import { Text, Image, Keyboard, StyleSheet, View, Pressable, FlatList, } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Input, ListItem } from 'react-native-elements';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import uuid from 'react-native-uuid';
+import { auth, getUser, } from '../firebase/fb-data';
 
-const Profile = ({navigation}) => {
+const Profile = ({route, navigation}) => {
+    const uid = route.params.uid;
+
+    // TODO: figure out how to get user information from uid.
+    var defaultName = 'John Doe';
+    if (uid === auth.currentUser.uid) {
+        defaultName = auth.currentUser.displayName;
+        
+    }
 
     const [state, setState] = React.useState({
-        userID: uuid.v4(), // TODO: get id from firebase
-        name: 'John Doe',
+        userID: uid,
+        name: defaultName,
         bio: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
     });
 
     const [listingImages, setListingImages] = React.useState([1,1,1,1,1,1,1,1,1,1]) // random data to populate dummy images
+
+    const updateStateObject = (vals) => {
+        setState({
+          ...state,
+          ...vals,
+        });
+      };
 
     const renderListing = ( {index, item } ) => {
         return (
@@ -26,16 +41,22 @@ const Profile = ({navigation}) => {
             </TouchableOpacity>
         );
     };
+
+    useEffect(() => {
+        if (route.params?.uid) {
+            updateStateObject({userID: route.params.uid});
+        };
+    }, [route.params?.uid])
     
     return (
         <View style={styles.container}>
-            <Image style={styles.pfp} source={require('../assets/Default_pfp.png')}/>
+            <Image style={styles.pfp} src='https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg'/>
             <View style={styles.info}>
                 <Text style={{fontSize: 24, fontWeight: 'bold', fontStyle:'italic', paddingBottom: 7,}}>{state.name}</Text>
                 <Text style={{fontSize: 20,}}>{state.bio}</Text>
             </View>   
             <View style={{width: '95%'}}>
-                {state.userID != state.userID ? null : // TODO: compare the state.userID to the userID of the person viewing the screen.
+                {state.userID != auth.currentUser.uid ? null : // TODO: compare the state.userID to the userID of the person viewing the screen.
                     <Button 
                         title='Edit Profile'
                         onPress={() =>{
