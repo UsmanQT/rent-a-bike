@@ -5,34 +5,29 @@ import { ScrollView } from "react-native-gesture-handler";
 
 
 const ViewListing = ({route, navigation}) => {
-  const { itemId } = route.params;
 
-  function getItemDetails(id) {
-    const item = listings.find((item) => item.id === id);
-    return item;
-  }
+  const { itemId, itemName, itemDisc, itemBrand, itemSize, itemPrice, itemImageUrl, userId, itemAddress } = route.params;
 
-  const item = getItemDetails(itemId);
   return (
     <ScrollView >
     <View style={styles.container}>
     <Image 
-    source={item.imageuri} 
+    source={{uri: itemImageUrl}} 
     style={{ width: '70%', height: '20%',borderRadius: 40}} />
     
     <View style={styles.fields}>
     <Text style={styles.title}>Name:</Text>
-    <Text style={styles.text}>{item.name}</Text>
+    <Text style={styles.text}>{itemName}</Text>
     <Text style={styles.title}>Description: </Text>
-    <Text style={styles.text}>{item.description}</Text>
+    <Text style={styles.text}>{itemDisc}</Text>
     <Text style={styles.title}>Price:</Text>
-    <Text style={styles.text}>{item.price}</Text>
+    <Text style={styles.text}>{itemPrice}</Text>
     <Text style={styles.title}>Brand:</Text>
-    <Text style={styles.text}>{item.brand}</Text>
+    <Text style={styles.text}>{itemBrand}</Text>
     <Text style={styles.title}>Size:</Text>
-    <Text style={styles.text}>{item.size}</Text>
+    <Text style={styles.text}>{itemSize}</Text>
     <Text style={styles.title}>Address:</Text>
-    <Text style={styles.text}>{item.address}</Text>
+    <Text style={styles.text}>{itemAddress}</Text>
     
     </View>
     <View style={styles.button}>

@@ -9,10 +9,15 @@ import { getAuth } from "firebase/auth";
 import { getStorage } from 'firebase/storage';
 
 import { firebaseConfig } from "./fb-credentials";
+import { getFirestore, collection, addDoc, getDocs, query, where, onSnapshot } from "firebase/firestore";
+
 
 
 const app = initializeApp(firebaseConfig);
+export const db = getFirestore(app);
 export const auth = getAuth(app);
+
+const dbRef = collection(db, "listings");
 export default app;
 
 
@@ -26,12 +31,13 @@ export function initDB() {
 
 
 
-export function storeData(item, path) {
-    console.log('Writing', item);
-    const db = getDatabase();
-    const reference = ref(db, path);
-    push(reference, item);
-}
+
+// export function storeData(item, path) {
+//     console.log('Writing', item);
+//     const db = getDatabase();
+//     const reference = ref(db, path);
+//     push(reference, item);
+// }
 
 export function setupDataListener(updateFunc, path) {
     const db = getDatabase();
@@ -48,4 +54,41 @@ export function setupDataListener(updateFunc, path) {
           updateFunc([]);
         }
       });
+}
+
+
+
+// Define a function to store data in Firestore
+export function storeData(data) {
+  addDoc(dbRef, data)
+  .then(docRef => {
+      console.log("Document has been added successfully");
+  })
+  .catch(error => {
+      console.log(error);
+  })
+}
+
+// export async function fetchData ()  {
+//   const dbRef = collection(db, "listings");
+//   const snapshot = await getDocs(dbRef);
+//   const list =  snapshot.docs.map(doc => doc.data());
+//   return list;
+// }
+
+export async function fetchUserData (userId)  {
+  const dbRef = collection(db, "listings");
+  const q =  query(dbRef, where("userId", "==", userId));
+  const querySnapshot = await getDocs(q);
+  const list = querySnapshot.docs.map(doc => doc.data());
+  return list;
+}
+
+export async function fetchData(callback) {
+  const dbRef = collection(db, "listings");
+  const unsub = onSnapshot(dbRef, (snapshot) => {
+    const list = snapshot.docs.map((doc) => doc.data());
+    callback(list);
+  });
+  return unsub;
 }

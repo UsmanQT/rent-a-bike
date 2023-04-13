@@ -2,10 +2,11 @@ import { Text, Image, Keyboard, StyleSheet, View, Pressable, FlatList, } from 'r
 import React, { useState, useEffect } from 'react';
 import { Button, Input, ListItem } from 'react-native-elements';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { auth, getUser, } from '../firebase/fb-data';
+import { auth, fetchData, fetchUserData } from '../firebase/fb-data';
+
 
 const Profile = ({route, navigation}) => {
-    const uid = route.params.uid;
+    const uid = route.params?.uid;
 
     // TODO: figure out how to get user information from uid.
     var defaultName = 'John Doe';
@@ -14,13 +15,17 @@ const Profile = ({route, navigation}) => {
         
     }
 
+    const [isLoading, setIsLoading] = useState(true);
+
+    const [listingData, setListingData] = useState([]);
+
+
     const [state, setState] = React.useState({
         userID: uid,
         name: defaultName,
         bio: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
     });
 
-    const [listingImages, setListingImages] = React.useState([1,1,1,1,1,1,1,1,1,1]) // random data to populate dummy images
 
     const updateStateObject = (vals) => {
         setState({
@@ -29,16 +34,20 @@ const Profile = ({route, navigation}) => {
         });
       };
 
-    const renderListing = ( {index, item } ) => {
+    const renderListing = ( {item } ) => {
+        
         return (
             <TouchableOpacity>
-                <ListItem key={index}>
+                {isLoading ? (<View><Text>Loading..</Text></View> ): (
+                <ListItem key={item.id}>
                     <Image
-                        source={require('../assets/Default_bike.png')}
-                        style={styles.listingImage}
+                    
+                    source={item.listImageUri ? { uri: item.listImageUri } : require('../assets/Default_bike.png')}
+                        style={{ width: 100, height: 100 }}
                     />
-                </ListItem>
+                </ListItem>)}
             </TouchableOpacity>
+            
         );
     };
 
@@ -46,8 +55,23 @@ const Profile = ({route, navigation}) => {
         if (route.params?.uid) {
             updateStateObject({userID: route.params.uid});
         };
+        
+        
     }, [route.params?.uid])
-    
+
+    useEffect(() => {
+        const getListings = async () => {
+            const list = await fetchUserData(state.userID);
+            setListingData(list);
+            setIsLoading(false);
+            
+          };
+      
+          getListings();
+          console.log("profile screen")
+          console.log(listingData.length)
+    },[])
+
     return (
         <View style={styles.container}>
             <Image style={styles.pfp} src='https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg'/>
@@ -59,22 +83,23 @@ const Profile = ({route, navigation}) => {
                 {state.userID != auth.currentUser.uid ? null : // TODO: compare the state.userID to the userID of the person viewing the screen.
                     <Button 
                         title='Edit Profile'
-                        onPress={() =>{
+                        onPress={() =>  {
                             navigation.navigate('EditProfile');
                         }}
                         style={styles.button}
                     />
                 }
             </View>
-
             <View style={styles.list}>
-                <FlatList
-                    data={listingImages}
+                {listingData.length > 0 ? (<FlatList
+                    data={listingData}
                     renderItem={renderListing}
                     numColumns={3}
-                />
+                />) : (<View><Text>No Listings to show</Text></View>)}
+                
                 
             </View>
+            
             
         </View>
     );

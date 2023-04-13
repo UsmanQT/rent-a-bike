@@ -7,31 +7,46 @@ import Profile from "./Profile";
 import FilterScreen from "./Filter";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import listings from '../models/listing';
-import {auth} from '../firebase/fb-data';
+import { auth,  fetchData, dataListener } from '../firebase/fb-data';
 
 
 const HomeScreen = ({route, navigation}) => {
-   
-    const [listingImages, setListingImages] = React.useState([1,1,1,1,1,1,1,1,1,1]) // random data to populate dummy images
+
+    const [isLoading, setIsLoading] = useState(true);
+
+    const [listingData, setListingData] = useState([]);
 
     const renderListing = ( { item } ) => {
         return (
+          <View>
+          {isLoading ? (<View><Text>Loading..</Text></View> ): (
             <TouchableOpacity
-            onPress={() => navigation.navigate('ViewListing', {itemId: item.id})}
+            onPress={() => navigation.navigate('ViewListing', {
+              itemId: item.id, 
+              itemName: item.listName,
+              itemDisc: item.listDisc,
+              itemBrand: item.brandName,
+              itemSize: item.listSize,
+              itemPrice: item.listPrice,
+              itemImageUrl: item.listImageUri,
+              userId: item.userId,
+              itemAddress: item.listAddress
+            })}
             >
-                <ListItem key={item.index}>
+                <ListItem key={item.id}>
                     <Image
-                        source={item.imageuri }
+                        source={item.listImageUri ? { uri: item.listImageUri } : require('../assets/Default_bike.png')}
                         style={styles.listingImage}
                     />
                     <ListItem.Content>
                         <ListItem.Title>
-                            {item.name}
+                            {item.listName}
                         </ListItem.Title>
                     </ListItem.Content>
                 </ListItem>
                 
-            </TouchableOpacity>
+            </TouchableOpacity>)}
+            </View>
         );
     };  
 
@@ -63,6 +78,27 @@ const HomeScreen = ({route, navigation}) => {
     
         });
       });
+
+      useEffect(() => {
+        // const getListings = async () => {
+        //     const list = await fetchData();
+        //     setListingData(list);
+        //     setIsLoading(false);
+            
+        //   };
+      
+        //   getListings();
+        const unsubscribe = fetchData((items) => {
+          setListingData(items);
+          setIsLoading(false);
+          console.log(listingData)
+        })
+        
+          console.log("home screen")
+          console.log(listingData);
+          
+    },[])
+
   return (
     <View style={styles.container}>
     <View style={styles.list}>
@@ -78,7 +114,7 @@ const HomeScreen = ({route, navigation}) => {
             </View>
     
     <FlatList
-        data={listings}
+        data={listingData}
         renderItem={renderListing}
         numColumns={1}
     />

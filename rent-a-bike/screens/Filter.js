@@ -173,6 +173,3 @@ date: {
 })
 
 export default FilterScreen;
-
-
-
