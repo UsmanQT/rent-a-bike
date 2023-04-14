@@ -35,7 +35,7 @@ const HomeScreen = ({route, navigation}) => {
             >
                 <ListItem key={item.id}>
                     <Image
-                        source={item.listImageUri ? { uri: item.listImageUri } : require('../assets/Default_bike.png')}
+                        source={item.listImageUri ? { uri: item.listImageUri[0] } : require('../assets/Default_bike.png')}
                         style={styles.listingImage}
                     />
                     <ListItem.Content>
@@ -88,7 +88,7 @@ const HomeScreen = ({route, navigation}) => {
         //   };
       
         //   getListings();
-        const unsubscribe = fetchData((items) => {
+        fetchData((items) => {
           setListingData(items);
           setIsLoading(false);
           console.log(listingData)

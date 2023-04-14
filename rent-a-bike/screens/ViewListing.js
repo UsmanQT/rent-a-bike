@@ -2,18 +2,24 @@ import {View, Text, Image, StyleSheet, Button } from "react-native";
 import React from "react";
 import listings from '../models/listing';
 import { ScrollView } from "react-native-gesture-handler";
+import ImageSlider  from '../components/ImageSlider';
 
 
 const ViewListing = ({route, navigation}) => {
 
   const { itemId, itemName, itemDisc, itemBrand, itemSize, itemPrice, itemImageUrl, userId, itemAddress } = route.params;
 
+  const defaultImage = [
+    'https://www.cityworks.com/wp-content/uploads/2022/05/placeholder-3.png',
+  ];
+
   return (
     <ScrollView >
     <View style={styles.container}>
-    <Image 
-    source={{uri: itemImageUrl}} 
-    style={{ width: '70%', height: '20%',borderRadius: 40}} />
+    <ImageSlider images={itemImageUrl ? itemImageUrl : defaultImage} />
+    {/* <Image 
+    source={{uri: itemImageUrl[0]}} 
+    style={{ width: '70%', height: '20%',borderRadius: 40}} /> */}
     
     <View style={styles.fields}>
     <Text style={styles.title}>Name:</Text>
@@ -34,6 +40,21 @@ const ViewListing = ({route, navigation}) => {
       <Button 
         title='Get'
         color= 'white'
+        onPress={() => {
+          navigation.navigate("RentalScreen", 
+          {
+              itemId: itemId, 
+              itemName: itemName,
+              itemDisc: itemDisc,
+              itemBrand: itemBrand,
+              itemSize: itemSize,
+              itemPrice: itemPrice,
+              itemImageUrl: itemImageUrl,
+              userId: userId,
+              itemAddress: itemAddress
+          }
+          )
+        }}
         />
     </View>
     

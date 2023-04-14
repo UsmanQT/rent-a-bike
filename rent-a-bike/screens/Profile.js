@@ -1,8 +1,8 @@
-import { Text, Image, Keyboard, StyleSheet, View, Pressable, FlatList, } from 'react-native';
+import { Text, Image, Keyboard, StyleSheet, View, Pressable, FlatList, SafeAreaView} from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { Button, Input, ListItem } from 'react-native-elements';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import { auth, fetchData, fetchUserData } from '../firebase/fb-data';
+import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
+import { auth, fetchUserData } from '../firebase/fb-data';
 
 
 const Profile = ({route, navigation}) => {
@@ -42,7 +42,7 @@ const Profile = ({route, navigation}) => {
                 <ListItem key={item.id}>
                     <Image
                     
-                    source={item.listImageUri ? { uri: item.listImageUri } : require('../assets/Default_bike.png')}
+                    source={item.listImageUri[0] ? { uri: item.listImageUri[0] } : require('../assets/Default_bike.png')}
                         style={{ width: 100, height: 100 }}
                     />
                 </ListItem>)}
@@ -73,6 +73,8 @@ const Profile = ({route, navigation}) => {
     },[])
 
     return (
+        
+        
         <View style={styles.container}>
             <Image style={styles.pfp} src='https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg'/>
             <View style={styles.info}>
@@ -90,18 +92,35 @@ const Profile = ({route, navigation}) => {
                     />
                 }
             </View>
+            <View><Text style={styles.label}>Your Listings</Text></View>
             <View style={styles.list}>
                 {listingData.length > 0 ? (<FlatList
                     data={listingData}
                     renderItem={renderListing}
-                    numColumns={3}
+                    //numColumns={3}
+                    horizontal={true}
                 />) : (<View><Text>No Listings to show</Text></View>)}
                 
                 
             </View>
+            <View><Text style={styles.label}>Your Rentings</Text></View>
             
-            
+            {/* Change the following list to display the Rentings
+            Currently it is displaying the list of listings */}
+            <View style={styles.list}>
+                {listingData.length > 0 ? (<FlatList
+                    data={listingData}
+                    renderItem={renderListing}
+                    //numColumns={3}
+                    horizontal={true}
+                
+                />) : (<View><Text>No Listings to show</Text></View>)}
+                
+                
+            </View>
         </View>
+        
+       
     );
 };
 
@@ -113,7 +132,8 @@ const styles = StyleSheet.create({
       backgroundColor: "#cbe7f5",
       alignItems: "center",
       padding: 10,
-      gap: 10,
+      gap: 5,
+      paddingBottom: 50
     },
     info: {
         backgroundColor: "white",
@@ -155,13 +175,23 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         width: '95%',
         flex: 1,
-        marginBottom: 20
+        marginBottom: 10,
+        paddingBottom: 20
     },
     listingImage: {
         width: 100,
-        height: 100,
+        height: 8,
         resizeMode: 'cover'
-    }
+    },
+    label: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        fontStyle: 'italic',
+        color: '#143342',
+        padding: 10,
+        paddingTop: 20,
+        textAlign: 'center'
+    },
 });
 
 export default Profile;

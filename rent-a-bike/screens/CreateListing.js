@@ -17,6 +17,7 @@ const CreateListing = ({navigation}) => {
   const[brand, setBrand] = React.useState('');
   const[size, setSize] = React.useState('');
   const[address, setAddress] = React.useState('');
+  const [images, setImages] = React.useState([]);
   var userId = '';
   const dismissKeyboard = () => {
       if (Platform.OS != "web") {
@@ -24,8 +25,11 @@ const CreateListing = ({navigation}) => {
       }
   };
 
- 
-
+  useEffect(()=> {
+    const listimages = ['https://www.cityworks.com/wp-content/uploads/2022/05/placeholder-3.png', 
+    'https://static.vecteezy.com/system/resources/previews/002/292/395/original/placeholder-on-map-line-outline-icon-for-website-and-mobile-app-on-grey-background-free-vector.jpg' ]
+    setImages(listimages)
+  },[])
 
   return (
       <Pressable onTouchStart={dismissKeyboard} style={{flex: 1}}>
@@ -80,7 +84,8 @@ const CreateListing = ({navigation}) => {
                       onPress={() =>{
                         const auth = getAuth();
                         userId = auth.currentUser.uid;
-                          const listObject = {
+                        
+                        const listObject = {
                             userId: userId,
                             listName: listingName,
                             listDisc: listingDescription,
@@ -88,7 +93,7 @@ const CreateListing = ({navigation}) => {
                             brandName: brand,
                             listSize: size,
                             listAddress: address,
-                            listImageUri: 'https://www.cityworks.com/wp-content/uploads/2022/05/placeholder-3.png'
+                            listImageUri: images
                           }
                           storeData(listObject)
                           navigation.navigate("Profile", {uid: userId})
