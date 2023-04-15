@@ -2,7 +2,7 @@ import { Text, Image, Keyboard, StyleSheet, View, Pressable, FlatList, SafeAreaV
 import React, { useState, useEffect } from 'react';
 import { Button, Input, ListItem } from 'react-native-elements';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
-import { auth, fetchUserData } from '../firebase/fb-data';
+import { auth, fetchUserData, fetchUserRentals } from '../firebase/fb-data';
 
 
 const Profile = ({route, navigation}) => {
@@ -18,6 +18,10 @@ const Profile = ({route, navigation}) => {
     const [isLoading, setIsLoading] = useState(true);
 
     const [listingData, setListingData] = useState([]);
+
+    const [rentalsData, setRentalsData] = useState([]);
+
+    const [isRentalsLoading, setIsRentalsLoading] = useState(true);
 
 
     const [state, setState] = React.useState({
@@ -51,6 +55,23 @@ const Profile = ({route, navigation}) => {
         );
     };
 
+    const renderRentals = ( {item } ) => {
+        
+        return (
+            <TouchableOpacity>
+                {isRentalsLoading ? (<View><Text>Loading..</Text></View> ): (
+                <ListItem key={item.id}>
+                    <Image
+                    
+                    source={item.listImageUri[0] ? { uri: item.listImageUri[0] } : require('../assets/Default_bike.png')}
+                        style={{ width: 100, height: 100 }}
+                    />
+                </ListItem>)}
+            </TouchableOpacity>
+            
+        );
+    };
+
     useEffect(() => {
         if (route.params?.uid) {
             updateStateObject({userID: route.params.uid});
@@ -68,8 +89,19 @@ const Profile = ({route, navigation}) => {
           };
       
           getListings();
-          console.log("profile screen")
-          console.log(listingData.length)
+          //console.log("profile screen")
+          //console.log(listingData.length)
+
+          const getRentals = async () => {
+            const list2 = await fetchUserRentals(state.userID);
+            setRentalsData(list2);
+            setIsRentalsLoading(false);
+            
+          };
+      
+          getRentals();
+          console.log("rentals")
+          console.log(rentalsData)
     },[])
 
     return (
@@ -82,7 +114,7 @@ const Profile = ({route, navigation}) => {
                 <Text style={{fontSize: 20,}}>{state.bio}</Text>
             </View>   
             <View style={{width: '95%'}}>
-                {state.userID != auth.currentUser.uid ? null : // TODO: compare the state.userID to the userID of the person viewing the screen.
+                {state.userID != auth.currentUser.uid ? null : 
                     <Button 
                         title='Edit Profile'
                         onPress={() =>  {
@@ -108,9 +140,9 @@ const Profile = ({route, navigation}) => {
             {/* Change the following list to display the Rentings
             Currently it is displaying the list of listings */}
             <View style={styles.list}>
-                {listingData.length > 0 ? (<FlatList
-                    data={listingData}
-                    renderItem={renderListing}
+                {rentalsData.length > 0 ? (<FlatList
+                    data={rentalsData}
+                    renderItem={renderRentals}
                     //numColumns={3}
                     horizontal={true}
                 

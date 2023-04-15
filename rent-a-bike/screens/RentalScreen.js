@@ -2,6 +2,8 @@ import {View, Text, StyleSheet, Button } from "react-native";
 import React from "react";
 import { Calendar } from 'react-native-calendars';
 import { useState, useEffect } from 'react';
+import Toast from 'react-native-root-toast';
+import { auth, confirmRentings } from "../firebase/fb-data";
 
 const RentalScreen = ({route, navigation}) => {
     const { itemId, itemName, itemDisc, itemBrand, itemSize, itemPrice, itemImageUrl, userId, itemAddress } = route.params;
@@ -10,6 +12,10 @@ const RentalScreen = ({route, navigation}) => {
     const [endDate, setEndDate] = useState('');
     const [selected, setSelected] = useState('');
     const [numOfDays, setNumOfDays] = useState(0);
+    
+    const [currentUserId, setCurrentUserId] = useState(null);
+
+    const [isButtonDisabled, setIsButtonDisabled] = React.useState(true);
 
     const handleDayPress = (date) => {
         if (!startDate) {
@@ -29,6 +35,9 @@ const RentalScreen = ({route, navigation}) => {
         const oneDay = 24 * 60 * 60 * 1000; // one day in milliseconds
         const firstDate = new Date(date1);
         const secondDate = new Date(date2);
+        if(date2 == '' && date1 != '') {
+            return 1;
+        }
         const diffDays = Math.round(Math.abs((firstDate - secondDate) / oneDay));
         return diffDays + 1;
     };
@@ -59,8 +68,16 @@ const RentalScreen = ({route, navigation}) => {
         console.log(endDate)
         const days = getDaysBetweenDates(startDate, endDate)
         setNumOfDays(days)
+        numOfDays == 0 ? setIsButtonDisabled(true) : setIsButtonDisabled(false)
 
     },[startDate, endDate])
+
+  
+    useEffect(()=>{
+        if(auth.currentUser.uid) {
+            setCurrentUserId(auth.currentUser.uid)
+        }
+    },[])
 
     return(
         <View style={styles.container}>
@@ -87,10 +104,41 @@ const RentalScreen = ({route, navigation}) => {
         <Button 
             title='Confirm'
             onPress={() =>  {
-                //Show a popup that says successfully rented and navigate to profile screen
+                if(currentUserId == userId) {
+                    Toast.show('You can not rent this bike. You own this Listing' , {
+                        duration: Toast.durations.SHORT,
+                        animation: true,
+                        hideOnPress: true,
+                    });
+                }
+                else {
                 //Enter the renting data to the firebase data with the user id of the user who rented it.
+                const totalPrice =  itemPrice * numOfDays
+                const rentalDetails = {
+                    itemId: itemId,
+                    itemPrice: itemPrice,
+                    rentalDays: numOfDays,
+                    totalPrice: totalPrice,
+                    returnDate: endDate,
+                    ownerId: userId,
+                    customerId: currentUserId,
+                    listImageUri: itemImageUrl
+                }
+                confirmRentings(rentalDetails)
+
+                //Show a popup that says successfully rented and navigate to profile screen
+                Toast.show('Successfully Rented' , {
+                    duration: Toast.durations.SHORT,
+                    animation: true,
+                    hideOnPress: true,
+                });
+                navigation.navigate("Profile", {uid: currentUserId})
+                
+            }
             }}
             color='white'
+            disabled={isButtonDisabled}
+        
         />
         </View>
         </View>

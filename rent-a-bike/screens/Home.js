@@ -21,7 +21,7 @@ const HomeScreen = ({route, navigation}) => {
           <View>
           {isLoading ? (<View><Text>Loading..</Text></View> ): (
             <TouchableOpacity
-            onPress={() => navigation.navigate('ViewListing', {
+            onPress={() => { navigation.navigate('ViewListing', {
               itemId: item.id, 
               itemName: item.listName,
               itemDisc: item.listDisc,
@@ -31,7 +31,13 @@ const HomeScreen = ({route, navigation}) => {
               itemImageUrl: item.listImageUri,
               userId: item.userId,
               itemAddress: item.listAddress
-            })}
+            })
+            console.log('doc id')
+            console.log(item.id)
+          }
+            
+          }
+            
             >
                 <ListItem key={item.id}>
                     <Image

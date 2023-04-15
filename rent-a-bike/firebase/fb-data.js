@@ -18,6 +18,7 @@ export const db = getFirestore(app);
 export const auth = getAuth(app);
 
 const dbRef = collection(db, "listings");
+const rentRef = collection(db, "rentals");
 export default app;
 
 
@@ -87,8 +88,29 @@ export async function fetchUserData (userId)  {
 export async function fetchData(callback) {
   const dbRef = collection(db, "listings");
   const unsub = onSnapshot(dbRef, (snapshot) => {
-    const list = snapshot.docs.map((doc) => doc.data());
+    const list = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     callback(list);
   });
   return unsub;
+}
+
+export function confirmRentings(data) {
+  addDoc(rentRef, data)
+  .then(docRef => {
+    console.log("Rental is successfully added");
+  })
+  .catch(error => {
+    console.log(error)
+  })
+}
+
+
+export async function fetchUserRentals (userId)  {
+  console.log('userId')
+  console.log(userId)
+  const dbRef = collection(db, "rentals");
+  const q =  query(dbRef, where("customerId", "==", userId));
+  const querySnapshot = await getDocs(q);
+  const list = querySnapshot.docs.map(doc => doc.data());
+  return list;
 }
