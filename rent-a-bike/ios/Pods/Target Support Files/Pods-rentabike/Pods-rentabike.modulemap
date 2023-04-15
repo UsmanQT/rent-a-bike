@@ -1,0 +1,6 @@
+module Pods_rentabike {
+  umbrella header "Pods-rentabike-umbrella.h"
+
+  export *
+  module * { export * }
+}

@@ -1,0 +1,1 @@
+../../../../../node_modules/react-native-ama/ios/Ama-Bridging-Header.h

@@ -1,0 +1,1 @@
+../../../Target Support Files/react-native-ama/react-native-ama-umbrella.h

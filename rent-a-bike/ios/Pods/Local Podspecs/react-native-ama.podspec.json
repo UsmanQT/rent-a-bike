@@ -1,0 +1,21 @@
+{
+  "name": "react-native-ama",
+  "version": "0.6.19",
+  "summary": "Accessible Mobile App Library for React Native",
+  "homepage": "https://github.com/FormidableLabs/react-native-ama#readme",
+  "license": "MIT",
+  "authors": "Alessandro Senese <alessandro.senese@formidable.com> (https://github.com/FormidableLabs)",
+  "platforms": {
+    "ios": "10.0"
+  },
+  "source": {
+    "git": "https://github.com/FormidableLabs/react-native-ama.git",
+    "tag": "0.6.19"
+  },
+  "source_files": "ios/**/*.{h,m,mm,swift}",
+  "dependencies": {
+    "React-Core": [
+
+    ]
+  }
+}
