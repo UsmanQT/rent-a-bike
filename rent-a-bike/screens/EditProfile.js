@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Button, Input } from 'react-native-elements';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import uuid from 'react-native-uuid';
+import { ref, uploadBytes } from "firebase/storage";
+import { storage, } from '../firebase/fb-data';
 
 const EditProfile = ({route, navigation}) => {
 
@@ -21,11 +23,26 @@ const EditProfile = ({route, navigation}) => {
         });
     };
 
+    useEffect(() => { 
+        (async () => {
+            if (route.params?.imageUri) {
+                let result = await fetch(route.params.imageUri);
+                let blob = await result.blob();
+                uploadBytes(storageRef, blob).then((snapshot) => {
+                    console.log('Uploaded profile image');
+                })
+                updateStateObject({imageUri: route.params.imageUri})
+            }
+        })();
+    }, [route.params?.imageUri]);
+
     useEffect(() => {
         if (route.params?.imageUri) {
             updateStateObject({imageUri: route.params.imageUri})
         }
     }, [route.params?.imageUri]);
+
+    const storageRef = ref(storage, '/profileImages');
     
     return (
         <View style={styles.container}>

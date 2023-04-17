@@ -4,7 +4,9 @@ import { Camera, CameraType } from 'expo-camera';
 import { Button, } from 'react-native-elements';
 import * as MediaLibrary from 'expo-media-library';
 import { AntDesign } from '@expo/vector-icons'; 
-import { Ionicons } from '@expo/vector-icons'; 
+import { Ionicons } from '@expo/vector-icons';
+import { ref, uploadBytes } from "firebase/storage";
+import { storage, } from '../firebase/fb-data';
 
 
 const CameraCapture = ({route, navigation}) => {
@@ -19,6 +21,7 @@ const CameraCapture = ({route, navigation}) => {
     });
     
     const cameraRef = useRef(null);
+    const storageRef = ref(storage);
 
     useEffect(() => {
         (async () => {
@@ -123,7 +126,9 @@ const CameraCapture = ({route, navigation}) => {
                     />
                     <Button
                         title={'Save'}
-                        onPress={() => {navigation.navigate(triggeringScreen, {imageUri: state.image})}}
+                        onPress={() => {
+                            navigation.navigate(triggeringScreen, {imageUri: state.image})
+                        }}
                     />
 
                 </View>
