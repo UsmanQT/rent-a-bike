@@ -6,7 +6,7 @@ import {
 } from "firebase/database";
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getStorage } from 'firebase/storage';
+import { getStorage, } from 'firebase/storage';
 
 import { firebaseConfig } from "./fb-credentials";
 import { getFirestore, collection, addDoc, getDocs, query, where, onSnapshot } from "firebase/firestore";
@@ -19,7 +19,10 @@ export const auth = getAuth(app);
 
 const dbRef = collection(db, "listings");
 const rentRef = collection(db, "rentals");
+// const profRef = collection(db, "profiles");
 export default app;
+
+export const storage = getStorage();
 
 
 export const paths = {
@@ -29,8 +32,6 @@ export const paths = {
 export function initDB() {
     initializeApp(firebaseConfig);
 }
-
-
 
 
 // export function storeData(item, path) {

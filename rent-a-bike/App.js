@@ -13,6 +13,7 @@ import FilterScreen from './screens/Filter';
 import ViewListing from './screens/ViewListing';
 import CreateListing from './screens/CreateListing';
 import RentalScreen from './screens/RentalScreen';
+import CameraCapture from './screens/CameraCapture';
 
 export default function App() {
   const Stack = createNativeStackNavigator();
@@ -35,6 +36,9 @@ export default function App() {
       <Stack.Screen name='Profile' component={Profile}/>
       <Stack.Screen name='EditProfile' component={EditProfile}/>
       <Stack.Screen name='RentalScreen' component={RentalScreen}/>
+
+      <Stack.Screen name='CameraCapture' component={CameraCapture}/>
+
       </Stack.Navigator>
     </NavigationContainer>
   );
