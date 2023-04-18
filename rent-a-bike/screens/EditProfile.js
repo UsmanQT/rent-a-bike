@@ -3,13 +3,16 @@ import React, { useState, useEffect } from 'react';
 import { Button, Input } from 'react-native-elements';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import uuid from 'react-native-uuid';
-import { ref, uploadBytes } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL, } from "firebase/storage";
 import { storage, } from '../firebase/fb-data';
+import {auth} from '../firebase/fb-data';
+import { updateProfile } from "firebase/auth";
 
 const EditProfile = ({route, navigation}) => {
+    const uid = route.params?.uid;
 
     const [state, setState] = React.useState({
-        userID: uuid.v4(), // TODO: get id from firebase
+        userID: uid,
         name: 'John Doe',
         bio: 'Lorem Ipsum Dolor',
         email: 'JDoe@email.com',
@@ -28,10 +31,18 @@ const EditProfile = ({route, navigation}) => {
             if (route.params?.imageUri) {
                 let result = await fetch(route.params.imageUri);
                 let blob = await result.blob();
-                uploadBytes(storageRef, blob).then((snapshot) => {
+                uploadBytes(storageRef, blob).then(() => {
                     console.log('Uploaded profile image');
                 })
                 updateStateObject({imageUri: route.params.imageUri})
+
+                getDownloadURL(storageRef)
+                    .then((url) => {
+                        updateProfile(auth.currentUser, {
+                            photoURL: url,
+                        })
+
+                    })
             }
         })();
     }, [route.params?.imageUri]);
@@ -42,7 +53,7 @@ const EditProfile = ({route, navigation}) => {
         }
     }, [route.params?.imageUri]);
 
-    const storageRef = ref(storage, '/profileImages');
+    const storageRef = ref(storage, `${uid}-profileImage`);
     
     return (
         <View style={styles.container}>

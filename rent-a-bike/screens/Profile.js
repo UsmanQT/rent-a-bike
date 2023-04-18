@@ -108,7 +108,7 @@ const Profile = ({route, navigation}) => {
         
         
         <View style={styles.container}>
-            <Image style={styles.pfp} src='https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg'/>
+            <Image style={styles.pfp} src={auth.currentUser.photoURL}/>
             <View style={styles.info}>
                 <Text style={{fontSize: 24, fontWeight: 'bold', fontStyle:'italic', paddingBottom: 7,}}>{state.name}</Text>
                 <Text style={{fontSize: 20,}}>{state.bio}</Text>
@@ -118,7 +118,7 @@ const Profile = ({route, navigation}) => {
                     <Button 
                         title='Edit Profile'
                         onPress={() =>  {
-                            navigation.navigate('EditProfile');
+                            navigation.navigate('EditProfile', {uid: state.uid});
                         }}
                         style={styles.button}
                     />
