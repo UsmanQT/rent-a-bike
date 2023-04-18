@@ -2,8 +2,7 @@ import { Text, Image, Keyboard, StyleSheet, View, Pressable } from 'react-native
 import React, { useState, useEffect } from 'react';
 import { Button, Input } from 'react-native-elements';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import uuid from 'react-native-uuid';
-import { ref, uploadBytes, getDownloadURL, } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL, uploadBytesResumable, } from "firebase/storage";
 import { storage, } from '../firebase/fb-data';
 import {auth} from '../firebase/fb-data';
 import { updateProfile } from "firebase/auth";
@@ -18,6 +17,8 @@ const EditProfile = ({route, navigation}) => {
         imageUri: auth.currentUser.photoURL,
     });
 
+    const [uploading, setUploading] = React.useState(false);
+
     const updateStateObject = (vals) => {
         setState({
           ...state,
@@ -27,32 +28,69 @@ const EditProfile = ({route, navigation}) => {
 
     useEffect(() => { 
         (async () => {
-            if (route.params?.imageUri) {
-                let result = await fetch(route.params.imageUri);
-                let blob = await result.blob();
-                uploadBytes(storageRef, blob).then(() => {
-                    console.log('Uploaded profile image');
-                })
-                updateStateObject({imageUri: route.params.imageUri})
+            try{
+                if (route.params?.imageUri) {
+                    setUploading(true);
+                    
+                    let uri = route.params.imageUri;
+                    let result = await fetch(uri);
+                    let blob = await result.blob();
+                    const fileName = uri.substring(uri.lastIndexOf('/') + 1);
+                    // const fileName = `${state.userID}-profileImage`
 
-                getDownloadURL(storageRef)
-                    .then((url) => {
-                        updateProfile(auth.currentUser, {
-                            photoURL: url,
-                        })
+                    const storageRef = ref(storage, fileName);
 
-                    })
+                    const upload = uploadBytesResumable(storageRef, blob);
+                    upload.on('state_changed',
+                    (snapshot) => {
+                        // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        console.log('Upload is ' + progress + '% done');
+                        switch (snapshot.state) {
+                        case 'paused':
+                            console.log('Upload is paused');
+                            break;
+                        case 'running':
+                            console.log('Upload is running');
+                            break;
+                        }
+                    }, 
+                    (error) => {
+                        console.log("Error: ", error.message)
+                    }, 
+                    () => {
+                        getDownloadURL(storageRef)
+                            .then((url) => {
+                                updateProfile(auth.currentUser, {
+                                    photoURL: url,
+                                })
+
+                                updateStateObject({imageUri: url})
+                                setUploading(false);
+                                console.log('Uploaded profile image');
+                            })
+                    });
+                    // .then(() => {
+                    //     updateStateObject({imageUri: uri})
+
+                    //     getDownloadURL(storageRef)
+                    //         .then((url) => {
+                    //             updateProfile(auth.currentUser, {
+                    //                 photoURL: url,
+                    //             })
+                    //             setUploading(false);
+                    //             console.log('Uploaded profile image');
+                    //         })
+                    // })
+                    // .catch((e) => {
+                    //     console.log(e);
+                    // })
+                } 
+            } catch (e) {
+                console.log(e)
             }
         })();
     }, [route.params?.imageUri]);
-
-    useEffect(() => {
-        if (route.params?.imageUri) {
-            updateStateObject({imageUri: route.params.imageUri})
-        }
-    }, [route.params?.imageUri]);
-
-    const storageRef = ref(storage, `${state.userID}-profileImage`);
     
     return (
         <View style={styles.container}>
@@ -61,8 +99,8 @@ const EditProfile = ({route, navigation}) => {
                     navigation.navigate('CameraCapture', {triggeringScreen: 'EditProfile'});
                 }}
             >
-                {state.imageUri == null ?
-                <Image style={styles.pfp} source={require('../assets/Default_pfp.png')}/>
+                {state.imageUri == null || uploading ?
+                <Image style={styles.pfp} src={'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg'}/>
                 :
                 <Image style={styles.pfp} source={{uri: state.imageUri}}/>
                 }

@@ -19,9 +19,9 @@ const CameraCapture = ({route, navigation}) => {
         type: Camera.Constants.Type.back,
         flashMode: Camera.Constants.FlashMode.off,
     });
+    const [capturing, setCapturing] = useState(false);
     
     const cameraRef = useRef(null);
-    const storageRef = ref(storage);
 
     useEffect(() => {
         (async () => {
@@ -45,9 +45,11 @@ const CameraCapture = ({route, navigation}) => {
     const takePicture = async () => {
         if(cameraRef) {
             try {
+                setCapturing(true);
                 const data = await cameraRef.current.takePictureAsync();
                 console.log(data);
                 updateStateObject({image: data.uri});
+                setCapturing(false);
             } catch(error) {
                 console.log(error)
             }
@@ -127,10 +129,11 @@ const CameraCapture = ({route, navigation}) => {
                     <Button
                         title={'Save'}
                         onPress={() => {
-                            navigation.navigate(triggeringScreen, {imageUri: state.image})
+                            if (!capturing){
+                                navigation.navigate(triggeringScreen, {imageUri: state.image})
+                            }
                         }}
                     />
-
                 </View>
             }
             
