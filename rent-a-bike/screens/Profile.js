@@ -118,7 +118,7 @@ const Profile = ({route, navigation}) => {
                     <Button 
                         title='Edit Profile'
                         onPress={() =>  {
-                            navigation.navigate('EditProfile', {uid: state.uid});
+                            navigation.navigate('EditProfile');
                         }}
                         style={styles.button}
                     />

@@ -9,7 +9,7 @@ import { getAuth } from "firebase/auth";
 import { getStorage, } from 'firebase/storage';
 
 import { firebaseConfig } from "./fb-credentials";
-import { getFirestore, collection, addDoc, getDocs, query, where, onSnapshot } from "firebase/firestore";
+import { getFirestore, collection, doc, addDoc, setDoc, getDocs, query, where, onSnapshot } from "firebase/firestore";
 
 
 
@@ -19,7 +19,6 @@ export const auth = getAuth(app);
 
 const dbRef = collection(db, "listings");
 const rentRef = collection(db, "rentals");
-// const profRef = collection(db, "profiles");
 export default app;
 
 export const storage = getStorage();
@@ -105,7 +104,6 @@ export function confirmRentings(data) {
   })
 }
 
-
 export async function fetchUserRentals (userId)  {
   console.log('userId')
   console.log(userId)
@@ -115,3 +113,23 @@ export async function fetchUserRentals (userId)  {
   const list = querySnapshot.docs.map(doc => doc.data());
   return list;
 }
+
+export async function setProfile (data) {
+  await setDoc(doc(db, "profiles", `${data.uid}`), data, { merge: true })
+  .then(docRef => {
+      console.log(`Document has been added successfully to ${collection}!`);
+      console.log(data);
+  })
+  .catch(error => {
+      console.log(error);
+  })
+  // await addDoc(collection(db, "profiles"), data)
+  // .then(() => {
+  //   console.log(`${data.name} added!`)
+  // })
+}
+
+export async function getProfile (uid) {
+  
+}
+

@@ -4,7 +4,7 @@ import { Button, Input } from 'react-native-elements';
 import Toast from "react-native-root-toast";
 
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "firebase/auth";
-import {auth} from '../firebase/fb-data';
+import {auth, setProfile, } from '../firebase/fb-data';
 
 import {
     initDB,
@@ -129,6 +129,15 @@ const CreateAccount = ({route, navigation}) => {
                                                 updateProfile(auth.currentUser, {
                                                     displayName: user.name, photoURL: 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg',
                                                 })
+                                                const profileData = {
+                                                    uid: auth.currentUser.uid,
+                                                    profileImage: 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg',
+                                                    name: user.name,
+                                                    bio: '',
+                                                    listings: [],
+                                                    rentals: [],
+                                                }
+                                                setProfile(profileData)
                                             })
                                         navigation.navigate("Login");
                                     })
