@@ -2,8 +2,7 @@ import { Text, Image, Keyboard, StyleSheet, View, Pressable } from 'react-native
 import React, { useState, useEffect } from 'react';
 import { Button, Input } from 'react-native-elements';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { ref, uploadBytes, getDownloadURL, uploadBytesResumable, } from "firebase/storage";
-import { storage, } from '../firebase/fb-data';
+import { uploadImage } from '../firebase/fb-data';
 import {auth} from '../firebase/fb-data';
 import { updateProfile } from "firebase/auth";
 
@@ -18,6 +17,7 @@ const EditProfile = ({route, navigation}) => {
     });
 
     const [uploading, setUploading] = React.useState(false);
+    const [loading, setloading] = React.useState(false);
 
     const updateStateObject = (vals) => {
         setState({
@@ -31,60 +31,20 @@ const EditProfile = ({route, navigation}) => {
             try{
                 if (route.params?.imageUri) {
                     setUploading(true);
-                    
-                    let uri = route.params.imageUri;
-                    let result = await fetch(uri);
-                    let blob = await result.blob();
-                    const fileName = uri.substring(uri.lastIndexOf('/') + 1);
-                    // const fileName = `${state.userID}-profileImage`
+                    let uri = route.params.imageUri
+                    let fileName = `${auth.currentUser.uid}-profileImage`
 
-                    const storageRef = ref(storage, fileName);
-
-                    const upload = uploadBytesResumable(storageRef, blob);
-                    upload.on('state_changed',
-                    (snapshot) => {
-                        // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                        console.log('Upload is ' + progress + '% done');
-                        switch (snapshot.state) {
-                        case 'paused':
-                            console.log('Upload is paused');
-                            break;
-                        case 'running':
-                            console.log('Upload is running');
-                            break;
-                        }
-                    }, 
-                    (error) => {
-                        console.log("Error: ", error.message)
-                    }, 
-                    () => {
-                        getDownloadURL(storageRef)
-                            .then((url) => {
-                                updateProfile(auth.currentUser, {
-                                    photoURL: url,
-                                })
-
-                                updateStateObject({imageUri: url})
-                                setUploading(false);
-                                console.log('Uploaded profile image');
+                    await uploadImage(uri, fileName)
+                        .then((url) => {
+                            updateProfile(auth.currentUser, {
+                                photoURL: url,
                             })
-                    });
-                    // .then(() => {
-                    //     updateStateObject({imageUri: uri})
 
-                    //     getDownloadURL(storageRef)
-                    //         .then((url) => {
-                    //             updateProfile(auth.currentUser, {
-                    //                 photoURL: url,
-                    //             })
-                    //             setUploading(false);
-                    //             console.log('Uploaded profile image');
-                    //         })
-                    // })
-                    // .catch((e) => {
-                    //     console.log(e);
-                    // })
+                            updateStateObject({imageUri: url})
+                            console.log(url)
+                            console.log('Uploaded profile image');
+                            setUploading(false);
+                        });
                 } 
             } catch (e) {
                 console.log(e)

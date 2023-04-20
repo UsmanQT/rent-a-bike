@@ -1,12 +1,12 @@
 import {
-    getDatabase,
-    onValue,
-    push,
-    ref,
+  getDatabase,
+  onValue,
+  push,
+  ref,
 } from "firebase/database";
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getStorage, } from 'firebase/storage';
+import { getAuth, updateProfile } from "firebase/auth";
+import { getStorage, ref as fbStorageRef, uploadBytes, getDownloadURL, uploadBytesResumable, } from 'firebase/storage';
 
 import { firebaseConfig } from "./fb-credentials";
 import { getFirestore, collection, doc, addDoc, setDoc, getDocs, query, where, onSnapshot } from "firebase/firestore";
@@ -25,11 +25,11 @@ export const storage = getStorage();
 
 
 export const paths = {
-    USER_DATA_PATH: "UserData/",
+  USER_DATA_PATH: "UserData/",
 }
 
 export function initDB() {
-    initializeApp(firebaseConfig);
+  initializeApp(firebaseConfig);
 }
 
 
@@ -41,33 +41,33 @@ export function initDB() {
 // }
 
 export function setupDataListener(updateFunc, path) {
-    const db = getDatabase();
-    const reference = ref(db,path)
-    onValue(reference, (snapshot) => {
-        if (snapshot?.val()) {
-          const fbObject = snapshot.val();
-          const newArr = [];
-          Object.keys(fbObject).map((key, index) => {
-            newArr.push({ ...fbObject[key], id: key });
-          });
-          updateFunc(newArr);
-        } else {
-          updateFunc([]);
-        }
-      });
+  const db = getDatabase();
+  const reference = ref(db,path)
+  onValue(reference, (snapshot) => {
+      if (snapshot?.val()) {
+        const fbObject = snapshot.val();
+        const newArr = [];
+        Object.keys(fbObject).map((key, index) => {
+          newArr.push({ ...fbObject[key], id: key });
+        });
+        updateFunc(newArr);
+      } else {
+        updateFunc([]);
+      }
+    });
 }
 
 
 
 // Define a function to store data in Firestore
 export function storeData(data) {
-  addDoc(dbRef, data)
-  .then(docRef => {
-      console.log("Document has been added successfully");
-  })
-  .catch(error => {
-      console.log(error);
-  })
+addDoc(dbRef, data)
+.then(docRef => {
+    console.log("Document has been added successfully");
+})
+.catch(error => {
+    console.log(error);
+})
 }
 
 // export async function fetchData ()  {
@@ -78,58 +78,96 @@ export function storeData(data) {
 // }
 
 export async function fetchUserData (userId)  {
-  const dbRef = collection(db, "listings");
-  const q =  query(dbRef, where("userId", "==", userId));
-  const querySnapshot = await getDocs(q);
-  const list = querySnapshot.docs.map(doc => doc.data());
-  return list;
+const dbRef = collection(db, "listings");
+const q =  query(dbRef, where("userId", "==", userId));
+const querySnapshot = await getDocs(q);
+const list = querySnapshot.docs.map(doc => doc.data());
+return list;
 }
 
 export async function fetchData(callback) {
-  const dbRef = collection(db, "listings");
-  const unsub = onSnapshot(dbRef, (snapshot) => {
-    const list = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-    callback(list);
-  });
-  return unsub;
+const dbRef = collection(db, "listings");
+const unsub = onSnapshot(dbRef, (snapshot) => {
+  const list = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  callback(list);
+});
+return unsub;
 }
 
 export function confirmRentings(data) {
-  addDoc(rentRef, data)
-  .then(docRef => {
-    console.log("Rental is successfully added");
-  })
-  .catch(error => {
-    console.log(error)
-  })
+addDoc(rentRef, data)
+.then(docRef => {
+  console.log("Rental is successfully added");
+})
+.catch(error => {
+  console.log(error)
+})
 }
 
 export async function fetchUserRentals (userId)  {
-  console.log('userId')
-  console.log(userId)
-  const dbRef = collection(db, "rentals");
-  const q =  query(dbRef, where("customerId", "==", userId));
-  const querySnapshot = await getDocs(q);
-  const list = querySnapshot.docs.map(doc => doc.data());
-  return list;
+console.log('userId')
+console.log(userId)
+const dbRef = collection(db, "rentals");
+const q =  query(dbRef, where("customerId", "==", userId));
+const querySnapshot = await getDocs(q);
+const list = querySnapshot.docs.map(doc => doc.data());
+return list;
 }
 
 export async function setProfile (data) {
-  await setDoc(doc(db, "profiles", `${data.uid}`), data, { merge: true })
-  .then(docRef => {
-      console.log(`Document has been added successfully to ${collection}!`);
-      console.log(data);
-  })
-  .catch(error => {
-      console.log(error);
-  })
-  // await addDoc(collection(db, "profiles"), data)
-  // .then(() => {
-  //   console.log(`${data.name} added!`)
-  // })
+await setDoc(doc(db, "profiles", `${data.uid}`), data, { merge: true })
+.then(docRef => {
+    console.log(`Document has been added successfully to ${collection}!`);
+    console.log(data);
+})
+.catch(error => {
+    console.log(error);
+})
+// await addDoc(collection(db, "profiles"), data)
+// .then(() => {
+//   console.log(`${data.name} added!`)
+// })
 }
 
 export async function getProfile (uid) {
-  
+
 }
 
+export async function uploadImage (uri, fileName) {
+  try{
+        var response = null;
+        let result = await fetch(uri);
+        let blob = await result.blob();
+
+        const storageRef = fbStorageRef(storage, fileName);
+
+        const upload = uploadBytesResumable(storageRef, blob);
+        upload.on('state_changed',
+        (snapshot) => {
+            // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log('Upload is ' + progress + '% done');
+            switch (snapshot.state) {
+            case 'paused':
+                console.log('Upload is paused');
+                break;
+            case 'running':
+                console.log('Upload is running');
+                break;
+            }
+        }, 
+        (error) => {
+            console.log("Error: ", error.message)
+        }, 
+        () => {
+            getDownloadURL(storageRef)
+                .then((url) => {
+                    response = url;
+                    console.log('Uploaded profile image');
+                })
+        });
+        return response
+} catch (e) {
+    console.log(e)
+}
+}
