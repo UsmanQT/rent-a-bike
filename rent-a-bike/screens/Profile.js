@@ -27,6 +27,7 @@ const Profile = ({route, navigation}) => {
     const [state, setState] = React.useState({
         userID: uid,
         name: defaultName,
+        pfp: auth.currentUser.photoURL,
         bio: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
     });
 
@@ -81,6 +82,14 @@ const Profile = ({route, navigation}) => {
     }, [route.params?.uid])
 
     useEffect(() => {
+        if (route.params?.uri) {
+            updateStateObject({pfp: route.params.uri});
+        };
+        
+        
+    }, [route.params?.uri])
+
+    useEffect(() => {
         const getListings = async () => {
             const list = await fetchUserData(state.userID);
             setListingData(list);
@@ -108,7 +117,7 @@ const Profile = ({route, navigation}) => {
         
         
         <View style={styles.container}>
-            <Image style={styles.pfp} src={auth.currentUser.photoURL}/>
+            <Image style={styles.pfp} src={state.pfp}/>
             <View style={styles.info}>
                 <Text style={{fontSize: 24, fontWeight: 'bold', fontStyle:'italic', paddingBottom: 7,}}>{state.name}</Text>
                 <Text style={{fontSize: 20,}}>{state.bio}</Text>
@@ -195,7 +204,7 @@ const styles = StyleSheet.create({
     pfp: {
         backgroundColor: 'white',
         alignSelf:'flex-start',
-        resizeMode: 'contain',
+        resizeMode: 'cover',
         width: 175,
         height: 175,
         borderRadius: 175 / 2,

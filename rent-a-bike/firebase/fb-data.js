@@ -129,45 +129,19 @@ await setDoc(doc(db, "profiles", `${data.uid}`), data, { merge: true })
 // })
 }
 
-export async function getProfile (uid) {
-
-}
 
 export async function uploadImage (uri, fileName) {
-  try{
-        var response = null;
-        let result = await fetch(uri);
-        let blob = await result.blob();
-
-        const storageRef = fbStorageRef(storage, fileName);
-
-        const upload = uploadBytesResumable(storageRef, blob);
-        upload.on('state_changed',
-        (snapshot) => {
-            // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            console.log('Upload is ' + progress + '% done');
-            switch (snapshot.state) {
-            case 'paused':
-                console.log('Upload is paused');
-                break;
-            case 'running':
-                console.log('Upload is running');
-                break;
-            }
-        }, 
-        (error) => {
-            console.log("Error: ", error.message)
-        }, 
-        () => {
-            getDownloadURL(storageRef)
-                .then((url) => {
-                    response = url;
-                    console.log('Uploaded profile image');
-                })
-        });
-        return response
-} catch (e) {
-    console.log(e)
-}
+  var response = 'https://www.cityworks.com/wp-content/uploads/2022/05/placeholder-3.png';
+  let result = await fetch(uri);
+  let blob = await result.blob();
+  
+  const storageRef = fbStorageRef(storage, fileName);
+  
+  await uploadBytesResumable(storageRef, blob)
+  url = await getDownloadURL(storageRef)
+          .then((url) => {
+              console.log('Uploaded image');
+  
+              return Promise.resolve(url);
+          })
 }

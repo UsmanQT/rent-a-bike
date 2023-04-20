@@ -16,7 +16,7 @@ const ViewListing = ({route, navigation}) => {
   return (
     <ScrollView >
     <View style={styles.container}>
-    <ImageSlider images={itemImageUrl ? itemImageUrl : defaultImage} />
+    <ImageSlider images={itemImageUrl ? itemImageUrl : defaultImage}/>
     {/* <Image 
     source={{uri: itemImageUrl[0]}} 
     style={{ width: '70%', height: '20%',borderRadius: 40}} /> */}
@@ -117,6 +117,11 @@ button: {
   height: 60,
   padding: 10,
   width: '99%',
+},
+listingImage: {
+  width: 100,
+  height: 100,
+  resizeMode: 'cover'
 },
 })
 export default ViewListing;

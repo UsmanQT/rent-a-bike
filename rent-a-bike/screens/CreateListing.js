@@ -7,7 +7,7 @@ import { Button, Input, ListItem } from 'react-native-elements';
 import { storeData } from '../firebase/fb-data';
 import { getAuth } from "firebase/auth";
 import { ref, uploadBytes, getDownloadURL, } from "firebase/storage";
-import { storage, auth } from '../firebase/fb-data';
+import { storage, auth, uploadImage } from '../firebase/fb-data';
 
 
 
@@ -20,6 +20,8 @@ const CreateListing = ({route, navigation}) => {
   const[size, setSize] = React.useState('');
   const[address, setAddress] = React.useState('');
   const [images, setImages] = React.useState([]);
+  const[numImages, setNumImages] = React.useState(0);
+  const[uploading, setUploading] = React.useState(false);
   var userId = '';
   const dismissKeyboard = () => {
       if (Platform.OS != "web") {
@@ -27,7 +29,7 @@ const CreateListing = ({route, navigation}) => {
       }
   };
 
-  const storageRef = ref(storage, `${auth.currentUser.uid}-listingImage`);
+//   const storageRef = ref(storage, `${auth.currentUser.uid}-listingImage`);
 
 //   useEffect(()=> {
 //     const listimages = ['https://www.cityworks.com/wp-content/uploads/2022/05/placeholder-3.png', 
@@ -43,19 +45,17 @@ const CreateListing = ({route, navigation}) => {
   useEffect(() => { 
     (async () => {
         if (route.params?.imageUri) {
-            let result = await fetch(route.params.imageUri);
-            let blob = await result.blob();
-            uploadBytes(storageRef, blob).then(() => {
-                console.log('Uploaded listing image');
-            })
-            
+            const uri = route.params.imageUri;
+            // TODO: Add a uid for the listing and attach it to the filename
+            const fileName = `${auth.currentUser.uid}-listingImage#${numImages}`
+            console.log("uploading: ", fileName)
+            await uploadImage(uri, fileName)
 
-            getDownloadURL(storageRef)
-                .then((url) => {
-                    var arr = images;
-                    arr.push(url)
-                    setImages(arr)
-                })
+            var arr = images;
+            arr.push(url);
+            setImages(arr);
+            setNumImages(numImages + 1)
+            console.log("Url:",url)
         }
     })();
 }, [route.params?.imageUri]);

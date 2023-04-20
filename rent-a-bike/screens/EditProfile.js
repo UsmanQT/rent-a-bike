@@ -34,13 +34,12 @@ const EditProfile = ({route, navigation}) => {
                     let uri = route.params.imageUri
                     let fileName = `${auth.currentUser.uid}-profileImage`
 
-                    await uploadImage(uri, fileName)
+                    url = await uploadImage(uri, fileName)
                         .then((url) => {
                             updateProfile(auth.currentUser, {
                                 photoURL: url,
                             })
-
-                            updateStateObject({imageUri: url})
+                            updateStateObject({imageUri: uri})
                             console.log(url)
                             console.log('Uploaded profile image');
                             setUploading(false);
@@ -89,6 +88,17 @@ const EditProfile = ({route, navigation}) => {
                 /> 
                 {/** Maybe add in password reset? */}
             </View>   
+            <Button 
+                style={styles.button} 
+                title={"Save"}
+                onPress={() => {
+                    //TODO: Save changes
+                    navigation.navigate("Profile", {
+                        uid: auth.currentUser.uid,
+                        uri: state.imageUri,
+                    })
+                }}
+            />
             
             
         </View>
@@ -133,7 +143,7 @@ const styles = StyleSheet.create({
     pfp: {
         backgroundColor: 'white',
         alignSelf:'flex-start',
-        resizeMode: 'contain',
+        resizeMode: 'cover',
         width: 175,
         height: 175,
         borderRadius: 175 / 2,
