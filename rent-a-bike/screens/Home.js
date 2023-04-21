@@ -141,7 +141,7 @@ const styles = StyleSheet.create ({
         gap: 10,
       },
     list: {
-        flexDirection:'col',
+        flexDirection:'column',
         //backgroundColor: "white",
         padding: 2,
         borderRadius: 10,

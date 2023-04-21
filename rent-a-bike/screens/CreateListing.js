@@ -8,6 +8,7 @@ import { storeData } from '../firebase/fb-data';
 import { getAuth } from "firebase/auth";
 import { ref, uploadBytes, getDownloadURL, } from "firebase/storage";
 import { storage, auth, uploadImage } from '../firebase/fb-data';
+import uuid from 'react-native-uuid';
 
 
 
@@ -47,7 +48,7 @@ const CreateListing = ({route, navigation}) => {
         if (route.params?.imageUri) {
             const uri = route.params.imageUri;
             // TODO: Add a uid for the listing and attach it to the filename
-            const fileName = `${auth.currentUser.uid}-listingImage#${numImages}`
+            const fileName = `${auth.currentUser.uid}-listingImage#${numImages}-${uuid.v4()}`
             console.log("uploading: ", fileName)
             await uploadImage(uri, fileName)
 
