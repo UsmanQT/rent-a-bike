@@ -21,6 +21,7 @@
     "expo-firebase-analytics": "^8.0.0",
     "expo-media-library": "^15.2.3",
     "expo-status-bar": "~1.4.4",
+    "expo-updates": "~0.16.4",
     "firebase": "9.6.11",
     "patch-package": "^6.5.1",
     "postinstall-postinstall": "^2.1.0",

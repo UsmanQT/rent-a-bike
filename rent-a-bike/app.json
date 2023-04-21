@@ -22,12 +22,16 @@
     },
     "android": {
       "package": "com.zachveenstra.rentabike",
-	    "versionCode": 1,
+      "versionCode": 1,
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -41,7 +45,7 @@
           "messagingSenderId": "329651953714",
           "appId": "1:329651953714:web:53816e7e554452b0dfdc2b",
           "measurementId": "G-WCJ805CMMY"
-        } 
+        }
       }
     },
     "plugins": [
@@ -51,6 +55,11 @@
           "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "f6d744df-de68-4c3f-b7b7-59c304fde4b0"
+      }
+    }
   }
 }

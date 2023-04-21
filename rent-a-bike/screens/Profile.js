@@ -173,7 +173,7 @@ const Profile = ({route, navigation}) => {
                 {listingData.length > 0 ? (<FlatList
                     data={listingData}
                     renderItem={renderListing}
-                    //numColumns={3}
+                    numColumns={3}
                     horizontal={false}
                 />) : (<View><Text>No Listings to show</Text></View>)}
                 
@@ -194,7 +194,7 @@ const Profile = ({route, navigation}) => {
                         {rentalsData.length > 0 ? (<FlatList
                             data={rentalsData}
                             renderItem={renderRentals}
-                            //numColumns={3}
+                            numColumns={3}
                             horizontal={false}
                         
                         />) : (<View><Text>No Listings to show</Text></View>)}
