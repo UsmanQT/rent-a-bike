@@ -1,0 +1,17 @@
+diff --git a/node_modules/@firebase/storage/dist/index.esm2017.js b/node_modules/@firebase/storage/dist/index.esm2017.js
+index 1cdc0af..d25da2a 100644
+--- a/node_modules/@firebase/storage/dist/index.esm2017.js
++++ b/node_modules/@firebase/storage/dist/index.esm2017.js
+@@ -374,9 +374,9 @@ callback, timeout) {
+         }, millis);
+     }
+     function clearGlobalTimeout() {
+-        if (globalTimeoutId) {
+-            clearTimeout(globalTimeoutId);
+-        }
++        // if (globalTimeoutId) {
++        //     clearTimeout(globalTimeoutId);
++        // }
+     }
+     function handler(success, ...args) {
+         if (triggeredCallback) {

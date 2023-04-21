@@ -1,15 +1,17 @@
-import { Text, Keyboard, StyleSheet, View, Pressable } from 'react-native';
+import { Text, Keyboard, StyleSheet, View, Pressable, FlatList, Image, } from 'react-native';
 import React from "react";
 import { useState, useEffect } from 'react';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { Button, Input } from 'react-native-elements';
+import { Button, Input, ListItem } from 'react-native-elements';
 import { storeData } from '../firebase/fb-data';
 import { getAuth } from "firebase/auth";
+import { ref, uploadBytes, getDownloadURL, } from "firebase/storage";
+import { storage, auth, uploadImage } from '../firebase/fb-data';
 
 
 
-const CreateListing = ({navigation}) => {
+const CreateListing = ({route, navigation}) => {
   
   const[listingName, setListingName] = React.useState('');
   const[listingDescription, setDescription] = React.useState('');
@@ -17,6 +19,9 @@ const CreateListing = ({navigation}) => {
   const[brand, setBrand] = React.useState('');
   const[size, setSize] = React.useState('');
   const[address, setAddress] = React.useState('');
+  const [images, setImages] = React.useState([]);
+  const[numImages, setNumImages] = React.useState(0);
+  const[uploading, setUploading] = React.useState(false);
   var userId = '';
   const dismissKeyboard = () => {
       if (Platform.OS != "web") {
@@ -24,14 +29,73 @@ const CreateListing = ({navigation}) => {
       }
   };
 
- 
+//   const storageRef = ref(storage, `${auth.currentUser.uid}-listingImage`);
 
+//   useEffect(()=> {
+//     const listimages = ['https://www.cityworks.com/wp-content/uploads/2022/05/placeholder-3.png', 
+//     'https://static.vecteezy.com/system/resources/previews/002/292/395/original/placeholder-on-map-line-outline-icon-for-website-and-mobile-app-on-grey-background-free-vector.jpg' ]
+//     setImages(listimages)
+//   },[])
+
+// useEffect(()=> {
+//     const listimages = ['https://www.cityworks.com/wp-content/uploads/2022/05/placeholder-3.png']
+//     setImages(listimages)
+//   },[])
+
+  useEffect(() => { 
+    (async () => {
+        if (route.params?.imageUri) {
+            const uri = route.params.imageUri;
+            // TODO: Add a uid for the listing and attach it to the filename
+            const fileName = `${auth.currentUser.uid}-listingImage#${numImages}`
+            console.log("uploading: ", fileName)
+            await uploadImage(uri, fileName)
+
+            var arr = images;
+            arr.push(url);
+            setImages(arr);
+            setNumImages(numImages + 1)
+            console.log("Url:",url)
+        }
+    })();
+}, [route.params?.imageUri]);
+
+const renderImage = ( {index, item } ) => {
+    return (
+        <TouchableOpacity>
+             
+            <ListItem key={index}>
+                <Image
+                    src={images[index]}
+                    style={styles.listingImage}
+                />
+            </ListItem>
+        </TouchableOpacity>
+        
+    );
+};
 
   return (
       <Pressable onTouchStart={dismissKeyboard} style={{flex: 1}}>
           <View style={styles.container}>
               <Text style={styles.title}> Create A Listing </Text>
               <View style={styles.input}>
+                  <View>
+                    <FlatList
+                        data={images}
+                        renderItem={renderImage}
+                        //numColumns={3}
+                        horizontal={true}
+                    
+                        />
+                    <TouchableOpacity
+                        onPress={() => {
+                            navigation.navigate("CameraCapture",{triggeringScreen: 'CreateListing'})
+                        }}
+                    >
+                        <Icon name="camera" size={30} style={styles.icon} />
+                    </TouchableOpacity>
+                  </View>
                   <Input 
                       label='Listing Name'
                       placeholder='Enter the name of listing'
@@ -74,13 +138,13 @@ const CreateListing = ({navigation}) => {
                       onChangeText={setAddress}
                       value={address}
                   />
-                  <Icon name="camera" size={30} style={styles.icon} />
                   <Button
                       title='Create'
                       onPress={() =>{
                         const auth = getAuth();
                         userId = auth.currentUser.uid;
-                          const listObject = {
+                        
+                        const listObject = {
                             userId: userId,
                             listName: listingName,
                             listDisc: listingDescription,
@@ -88,10 +152,10 @@ const CreateListing = ({navigation}) => {
                             brandName: brand,
                             listSize: size,
                             listAddress: address,
-                            listImageUri: 'https://www.cityworks.com/wp-content/uploads/2022/05/placeholder-3.png'
+                            listImageUri: images
                           }
                           storeData(listObject)
-                          navigation.navigate("Profile", {uid: userId})
+                          navigation.goBack();
                       }}
                       style={styles.button}
                   />
@@ -140,9 +204,13 @@ const styles = StyleSheet.create({
       color: "red",
   },
   icon: {
-    
     padding: 10,
     alignSelf: 'center',
-  }
+  },
+  listingImage: {
+    width: 100,
+    height: 100,
+    resizeMode: 'cover'
+  },
 });
 export default CreateListing;

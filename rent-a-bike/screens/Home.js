@@ -21,7 +21,7 @@ const HomeScreen = ({route, navigation}) => {
           <View>
           {isLoading ? (<View><Text>Loading..</Text></View> ): (
             <TouchableOpacity
-            onPress={() => navigation.navigate('ViewListing', {
+            onPress={() => { navigation.navigate('ViewListing', {
               itemId: item.id, 
               itemName: item.listName,
               itemDisc: item.listDisc,
@@ -31,11 +31,17 @@ const HomeScreen = ({route, navigation}) => {
               itemImageUrl: item.listImageUri,
               userId: item.userId,
               itemAddress: item.listAddress
-            })}
+            })
+              console.log('doc id')
+              console.log(item.id)
+            }
+            
+          }
+            
             >
                 <ListItem key={item.id}>
                     <Image
-                        source={item.listImageUri ? { uri: item.listImageUri } : require('../assets/Default_bike.png')}
+                        source={item.listImageUri ? { uri: item.listImageUri[0] } : require('../assets/Default_bike.png')}
                         style={styles.listingImage}
                     />
                     <ListItem.Content>
@@ -66,7 +72,7 @@ const HomeScreen = ({route, navigation}) => {
               
               onPress={() => {
                 const user = auth.currentUser;
-                console.log(user.uid);
+                console.log("UID BI",user.uid);
                 navigation.navigate("Profile", {
                   uid: user?.uid
                 })}
@@ -88,7 +94,7 @@ const HomeScreen = ({route, navigation}) => {
         //   };
       
         //   getListings();
-        const unsubscribe = fetchData((items) => {
+        fetchData((items) => {
           setListingData(items);
           setIsLoading(false);
           console.log(listingData)
