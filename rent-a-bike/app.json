@@ -15,16 +15,34 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.zachveenstra.rentabike",
+      "buildNumber": "1.0.0",
+      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
+      "package": "com.zachveenstra.rentabike",
+	    "versionCode": 1,
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "config": {
+        "firebase": {
+          "apiKey": "AIzaSyAaQ5O4PRzxa4KkiMdfPL0h6KSAyPZ4xag",
+          "authDomain": "rentabike2-d63a5.firebaseapp.com",
+          "databaseURL": "https://rentabike2-d63a5-default-rtdb.firebaseio.com",
+          "projectId": "rentabike2-d63a5",
+          "storageBucket": "rentabike2-d63a5.appspot.com",
+          "messagingSenderId": "329651953714",
+          "appId": "1:329651953714:web:53816e7e554452b0dfdc2b",
+          "measurementId": "G-WCJ805CMMY"
+        } 
+      }
     },
     "plugins": [
       [
