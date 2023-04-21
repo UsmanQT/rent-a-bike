@@ -57,6 +57,20 @@ const ViewListing = ({route, navigation}) => {
         }}
         />
     </View>
+
+    <View style={styles.button}>
+      <Button 
+        title='View Poster'
+        color={'white'}
+        onPress={() => {
+          console.log("Poster: ",userId)
+          navigation.navigate("Profile", {
+            uid: userId
+        })
+        }}
+      />
+    </View>
+    
     
     
   </View>
@@ -117,6 +131,7 @@ button: {
   height: 60,
   padding: 10,
   width: '99%',
+  marginBottom: 10
 },
 listingImage: {
   width: 100,

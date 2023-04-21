@@ -61,13 +61,12 @@ const CreateListing = ({route, navigation}) => {
 }, [route.params?.imageUri]);
 
 const renderImage = ( {index, item } ) => {
-        console.log(images[0])
     return (
         <TouchableOpacity>
              
             <ListItem key={index}>
                 <Image
-                    source={images[index]}
+                    src={images[index]}
                     style={styles.listingImage}
                 />
             </ListItem>

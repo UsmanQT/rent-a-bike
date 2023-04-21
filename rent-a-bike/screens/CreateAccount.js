@@ -134,6 +134,7 @@ const CreateAccount = ({route, navigation}) => {
                                                     profileImage: 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg',
                                                     name: user.name,
                                                     bio: '',
+                                                    email: user.email,
                                                     listings: [],
                                                     rentals: [],
                                                 }

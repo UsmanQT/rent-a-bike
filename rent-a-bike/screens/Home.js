@@ -32,9 +32,9 @@ const HomeScreen = ({route, navigation}) => {
               userId: item.userId,
               itemAddress: item.listAddress
             })
-            console.log('doc id')
-            console.log(item.id)
-          }
+              console.log('doc id')
+              console.log(item.id)
+            }
             
           }
             
@@ -72,7 +72,7 @@ const HomeScreen = ({route, navigation}) => {
               
               onPress={() => {
                 const user = auth.currentUser;
-                console.log(user.uid);
+                console.log("UID BI",user.uid);
                 navigation.navigate("Profile", {
                   uid: user?.uid
                 })}

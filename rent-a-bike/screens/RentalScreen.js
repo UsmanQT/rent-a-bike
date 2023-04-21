@@ -132,7 +132,7 @@ const RentalScreen = ({route, navigation}) => {
                     animation: true,
                     hideOnPress: true,
                 });
-                navigation.navigate("Profile", {uid: currentUserId})
+                navigation.navigate("HomeScreen");
                 
             }
             }}

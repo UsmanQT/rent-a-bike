@@ -2,18 +2,11 @@ import { Text, Image, Keyboard, StyleSheet, View, Pressable, FlatList, SafeAreaV
 import React, { useState, useEffect } from 'react';
 import { Button, Input, ListItem } from 'react-native-elements';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
-import { auth, fetchUserData, fetchUserRentals } from '../firebase/fb-data';
+import { auth, fetchUserData, fetchUserRentals, getProfile } from '../firebase/fb-data';
 
 
 const Profile = ({route, navigation}) => {
     const uid = route.params?.uid;
-
-    // TODO: figure out how to get user information from uid.
-    var defaultName = 'John Doe';
-    if (uid === auth.currentUser.uid) {
-        defaultName = auth.currentUser.displayName;
-        
-    }
 
     const [isLoading, setIsLoading] = useState(true);
 
@@ -26,9 +19,9 @@ const Profile = ({route, navigation}) => {
 
     const [state, setState] = React.useState({
         userID: uid,
-        name: defaultName,
-        pfp: auth.currentUser.photoURL,
-        bio: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
+        name: '',
+        pfp: 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg',
+        bio: ''
     });
 
 
@@ -42,7 +35,22 @@ const Profile = ({route, navigation}) => {
     const renderListing = ( {item } ) => {
         
         return (
-            <TouchableOpacity>
+            <TouchableOpacity
+                onPress={() => { navigation.navigate('ViewListing', {
+                    itemId: item.id, 
+                    itemName: item.listName,
+                    itemDisc: item.listDisc,
+                    itemBrand: item.brandName,
+                    itemSize: item.listSize,
+                    itemPrice: item.listPrice,
+                    itemImageUrl: item.listImageUri,
+                    userId: item.userId,
+                    itemAddress: item.listAddress
+                })
+                    console.log('doc id')
+                    console.log(item.id)
+                }}
+            >
                 {isLoading ? (<View><Text>Loading..</Text></View> ): (
                 <ListItem key={item.id}>
                     <Image
@@ -59,7 +67,22 @@ const Profile = ({route, navigation}) => {
     const renderRentals = ( {item } ) => {
         
         return (
-            <TouchableOpacity>
+            <TouchableOpacity
+                onPress={() => { navigation.navigate('ViewListing', {
+                    itemId: item.id, 
+                    itemName: item.listName,
+                    itemDisc: item.listDisc,
+                    itemBrand: item.brandName,
+                    itemSize: item.listSize,
+                    itemPrice: item.listPrice,
+                    itemImageUrl: item.listImageUri,
+                    userId: item.ownerId,
+                    itemAddress: item.listAddress
+                })
+                    console.log('doc id')
+                    console.log(item.id)
+                }}
+            >
                 {isRentalsLoading ? (<View><Text>Loading..</Text></View> ): (
                 <ListItem key={item.id}>
                     <Image
@@ -74,9 +97,21 @@ const Profile = ({route, navigation}) => {
     };
 
     useEffect(() => {
-        if (route.params?.uid) {
-            updateStateObject({userID: route.params.uid});
-        };
+        // if (route.params?.uid) {
+        //     updateStateObject({userID: route.params.uid});
+        // };
+        (async () => {
+            const data = await getProfile(uid)
+
+            const userInfo = data[0];
+            console.log(userInfo)
+            updateStateObject({
+                userID: userInfo.uid, 
+                name: userInfo.name,
+                bio: userInfo.bio,
+                pfp: userInfo.profileImage
+            })
+        })();
         
         
     }, [route.params?.uid])
@@ -133,32 +168,44 @@ const Profile = ({route, navigation}) => {
                     />
                 }
             </View>
-            <View><Text style={styles.label}>Your Listings</Text></View>
+            <View><Text style={styles.label}>Listings</Text></View>
             <View style={styles.list}>
                 {listingData.length > 0 ? (<FlatList
                     data={listingData}
                     renderItem={renderListing}
                     //numColumns={3}
-                    horizontal={true}
+                    horizontal={false}
                 />) : (<View><Text>No Listings to show</Text></View>)}
                 
                 
             </View>
-            <View><Text style={styles.label}>Your Rentings</Text></View>
+
+            {state.userID === auth.currentUser.uid ?
+                (<View><Text style={styles.label}>Rentings</Text></View>)
+                :
+                (<View/>)
+            }
             
-            {/* Change the following list to display the Rentings
-            Currently it is displaying the list of listings */}
-            <View style={styles.list}>
-                {rentalsData.length > 0 ? (<FlatList
-                    data={rentalsData}
-                    renderItem={renderRentals}
-                    //numColumns={3}
-                    horizontal={true}
+                {state.userID === auth.currentUser.uid ?
+                    (
                 
-                />) : (<View><Text>No Listings to show</Text></View>)}
+                    
+                    <View style={styles.list}>
+                        {rentalsData.length > 0 ? (<FlatList
+                            data={rentalsData}
+                            renderItem={renderRentals}
+                            //numColumns={3}
+                            horizontal={false}
+                        
+                        />) : (<View><Text>No Listings to show</Text></View>)}
+                        
+                        
+                    </View>)
+                    :
+                    (<View/>)
+                }
                 
-                
-            </View>
+ 
         </View>
         
        

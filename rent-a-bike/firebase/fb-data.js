@@ -19,6 +19,7 @@ export const auth = getAuth(app);
 
 const dbRef = collection(db, "listings");
 const rentRef = collection(db, "rentals");
+const profileRef = collection(db, "profiles");
 export default app;
 
 export const storage = getStorage();
@@ -129,6 +130,13 @@ await setDoc(doc(db, "profiles", `${data.uid}`), data, { merge: true })
 // })
 }
 
+export async function getProfile (uid) {
+  const q = query(profileRef, where("uid", "==", uid));
+  const querySnapshot = await getDocs(q);
+  const data = querySnapshot.docs.map(doc => doc.data());
+  return Promise.resolve(data);
+}
+
 
 export async function uploadImage (uri, fileName) {
   var response = 'https://www.cityworks.com/wp-content/uploads/2022/05/placeholder-3.png';
@@ -139,9 +147,9 @@ export async function uploadImage (uri, fileName) {
   
   await uploadBytesResumable(storageRef, blob)
   url = await getDownloadURL(storageRef)
-          .then((url) => {
-              console.log('Uploaded image');
-  
-              return Promise.resolve(url);
-          })
+    .then((url) => {
+        console.log('Uploaded image: ', url);
+
+        return Promise.resolve(url);
+    })
 }

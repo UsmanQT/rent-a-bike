@@ -3,16 +3,20 @@ import React, { useState, useEffect } from 'react';
 import { Button, Input } from 'react-native-elements';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { uploadImage } from '../firebase/fb-data';
-import {auth} from '../firebase/fb-data';
-import { updateProfile } from "firebase/auth";
+import {auth, storage, getProfile, setProfile } from '../firebase/fb-data';
+import { updateProfile, updateEmail } from "firebase/auth";
+import { getStorage, ref as fbStorageRef, uploadBytes, getDownloadURL, uploadBytesResumable, } from 'firebase/storage';
+import Toast from "react-native-root-toast";
+
 
 const EditProfile = ({route, navigation}) => {
 
+
     const [state, setState] = React.useState({
         userID: auth.currentUser.uid,
-        name: 'John Doe',
-        bio: 'Lorem Ipsum Dolor',
-        email: 'JDoe@email.com',
+        name: '',
+        bio: '',
+        email: '',
         imageUri: auth.currentUser.photoURL,
     });
 
@@ -34,22 +38,61 @@ const EditProfile = ({route, navigation}) => {
                     let uri = route.params.imageUri
                     let fileName = `${auth.currentUser.uid}-profileImage`
 
-                    url = await uploadImage(uri, fileName)
-                        .then((url) => {
-                            updateProfile(auth.currentUser, {
-                                photoURL: url,
-                            })
-                            updateStateObject({imageUri: uri})
-                            console.log(url)
-                            console.log('Uploaded profile image');
-                            setUploading(false);
-                        });
+                    let result = await fetch(uri);
+                    let blob = await result.blob();
+                    
+                    const storageRef = fbStorageRef(storage, fileName);
+                    
+                    await uploadBytesResumable(storageRef, blob)
+                    url = await getDownloadURL(storageRef);
+                    
+                    console.log('Uploaded image: ', url);
+
+                    // let url = await uploadImage(uri, fileName)
+                    //     .then((url) => {
+                            
+                    //     });
+                        // updateProfile(auth.currentUser, {
+                        //     photoURL: url,
+                        // })
+                    // let storageRef = await uploadImage(uri, fileName)
+                    // .then(() => {
+                    //     url = getDownloadURL(storageRef)
+                    //     .then((url) => {
+                    //         updateProfile(auth.currentUser, {
+                    //             photoURL: url,
+                    //         })
+                    //         console.log('Uploaded image: ', url);
+                    //     })
+                    // }
+                    // )
+                        updateStateObject({imageUri: url})
+                        console.log("EditProfile: ", url)
+                        console.log('Uploaded profile image');
+                        setUploading(false);
                 } 
             } catch (e) {
                 console.log(e)
             }
         })();
     }, [route.params?.imageUri]);
+
+    useEffect(() => {
+        (async () => {
+            const data = await getProfile(auth.currentUser.uid)
+
+            const userInfo = data[0];
+            console.log(userInfo)
+            updateStateObject({
+                userID: userInfo.uid, 
+                name: userInfo.name,
+                bio: userInfo.bio,
+                email: userInfo.email,
+                profileImage: userInfo.profileImage
+            })
+        })();
+
+    }, [])
     
     return (
         <View style={styles.container}>
@@ -85,6 +128,10 @@ const EditProfile = ({route, navigation}) => {
                     placeholder='email@address.com'
                     onChangeText={(val) => updateStateObject({ email: val })}
                     value={state.email}
+                    autoCorrect={false}
+                    autoCapitalize='none'
+                    keyboardType='email-address'
+                    autoCompleteType='email'
                 /> 
                 {/** Maybe add in password reset? */}
             </View>   
@@ -92,11 +139,38 @@ const EditProfile = ({route, navigation}) => {
                 style={styles.button} 
                 title={"Save"}
                 onPress={() => {
-                    //TODO: Save changes
-                    navigation.navigate("Profile", {
-                        uid: auth.currentUser.uid,
-                        uri: state.imageUri,
+                    
+                    updateProfile(auth.currentUser, {
+                        displayName: state.name,
+                        photoURL: state.imageUri,
                     })
+
+                    updateEmail(auth.currentUser, state.email)
+                    .then(() => {
+                        const profileData = {
+                            uid: auth.currentUser.uid,
+                            profileImage: state.imageUri,
+                            name: state.name,
+                            bio: state.bio,
+                            email: state.email,
+                        }
+
+                        setProfile(profileData)
+
+                        navigation.navigate("Profile", {
+                            uid: auth.currentUser.uid,
+                            uri: state.imageUri
+                        })
+                    })
+                    .catch((error) => {
+                        Toast.show(error.message, {
+                            duration: Toast.durations.LONG,
+                            animation: true,
+                            hideOnPress: true,
+                        });
+                    })
+
+
                 }}
             />
             
