@@ -97,9 +97,6 @@ const Profile = ({route, navigation}) => {
     };
 
     useEffect(() => {
-        // if (route.params?.uid) {
-        //     updateStateObject({userID: route.params.uid});
-        // };
         (async () => {
             const data = await getProfile(uid)
 

@@ -86,14 +86,6 @@ const HomeScreen = ({route, navigation}) => {
       });
 
       useEffect(() => {
-        // const getListings = async () => {
-        //     const list = await fetchData();
-        //     setListingData(list);
-        //     setIsLoading(false);
-            
-        //   };
-      
-        //   getListings();
         fetchData((items) => {
           setListingData(items);
           setIsLoading(false);
@@ -142,7 +134,6 @@ const styles = StyleSheet.create ({
       },
     list: {
         flexDirection:'column',
-        //backgroundColor: "white",
         padding: 2,
         borderRadius: 10,
         width: '100%',

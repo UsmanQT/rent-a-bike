@@ -66,7 +66,6 @@ const Login = ({route, navigation}) => {
                                         navigation.navigate("HomeScreen")
                                     })
                                     .catch((error) => {
-                                        //TODO: Set error message on input
                                         const errorCode = error.code;
                                         const errorMessage = error.message;
                                         console.log(errorCode,errorMessage)

@@ -17,9 +17,6 @@ const ViewListing = ({route, navigation}) => {
     <ScrollView >
     <View style={styles.container}>
     <ImageSlider images={itemImageUrl ? itemImageUrl : defaultImage}/>
-    {/* <Image 
-    source={{uri: itemImageUrl[0]}} 
-    style={{ width: '70%', height: '20%',borderRadius: 40}} /> */}
     
     <View style={styles.fields}>
     <Text style={styles.title}>Name:</Text>
@@ -95,10 +92,7 @@ const styles= StyleSheet.create({
   fields : {
     marginTop: 20,
     marginBottom: 30,
-    //flex: 1,
-    //flexDirection: 'column',
-    //justifyContent: 'flex-start',
-    //alignItems: 'flex-start',
+    flex: 1,
     backgroundColor: 'white',
     padding: 20,
     

@@ -8,9 +8,6 @@ import {auth, setProfile, } from '../firebase/fb-data';
 
 import {
     initDB,
-    setupDataListener,
-    storeData,
-    paths
 } from '../firebase/fb-data'
 
 

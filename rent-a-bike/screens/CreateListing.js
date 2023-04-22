@@ -6,7 +6,6 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Button, Input, ListItem } from 'react-native-elements';
 import { storeData } from '../firebase/fb-data';
 import { getAuth } from "firebase/auth";
-import { ref, uploadBytes, getDownloadURL, } from "firebase/storage";
 import { storage, auth, uploadImage } from '../firebase/fb-data';
 import uuid from 'react-native-uuid';
 
@@ -29,19 +28,6 @@ const CreateListing = ({route, navigation}) => {
           Keyboard.dismiss();
       }
   };
-
-//   const storageRef = ref(storage, `${auth.currentUser.uid}-listingImage`);
-
-//   useEffect(()=> {
-//     const listimages = ['https://www.cityworks.com/wp-content/uploads/2022/05/placeholder-3.png', 
-//     'https://static.vecteezy.com/system/resources/previews/002/292/395/original/placeholder-on-map-line-outline-icon-for-website-and-mobile-app-on-grey-background-free-vector.jpg' ]
-//     setImages(listimages)
-//   },[])
-
-// useEffect(()=> {
-//     const listimages = ['https://www.cityworks.com/wp-content/uploads/2022/05/placeholder-3.png']
-//     setImages(listimages)
-//   },[])
 
   useEffect(() => { 
     (async () => {
